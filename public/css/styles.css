@@ -1,0 +1,645 @@
+/* Header styles */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 50px;
+    background-image: url('../img/ANFHEADER.jpeg');
+    background-size: cover;
+    background-position: center;
+    font-family: Arial, sans-serif;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.header-title {
+    color: #8A1527;
+    font-size: 25px;
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.header-subtitle {
+    color: #8A1527;
+    font-size: 25px;
+    text-align: right;
+    margin: 0;
+}
+
+/* Base Body Styles */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9; 
+}
+
+/* Login page styles */
+main.login-container {
+    display: flex;
+    flex: 1;
+    padding: 0;
+    gap: 0;
+    align-items: stretch;
+    min-height: 0;
+}
+
+.image-section {
+    flex: 1.1;
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+}
+
+.image-section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0; 
+}
+
+.form-section {
+    flex: 0.9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 30px;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #8A1527;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #a0a0a0;
+    border-radius: 6px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.form-links {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.form-links a {
+    display: block;
+    color: #8A1527;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.btn {
+    flex: 1;
+    background-color: #8A1527;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn:hover {
+    background-color: #6a101e;
+}
+
+.login-notice {
+    font-size: 12px;
+    text-align: center;
+    color: #333;
+}
+
+.login-notice .highlight-rojo {
+    color: #8A1527;
+    font-weight: bold;
+}
+
+/* Footer styles */
+.main-footer {
+    background-color: #D12420; 
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 40px;
+    min-height: 120px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+    box-sizing: border-box;
+}
+
+.footer-copy {
+    flex: 0 0 120px;
+    font-weight: normal;
+    line-height: 1.6;
+    font-size: 13px;
+}
+
+.footer-content {
+    flex: 1;
+    padding-left: 20px;
+    text-align: justify;
+    line-height: 1.7;
+    font-size: 13px;
+}
+
+.footer-content a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.footer-content a:hover {
+    text-decoration: underline;
+}
+
+/* Zona Style */
+.zona-container { width: 100%; padding: 20px; box-sizing: border-box; font-family: Arial, sans-serif; position: relative; }
+.dropdown-zona { position: relative; display: inline-block; margin-bottom: 12px; z-index: 100; }
+.btn-zona { background-color: #7B1113; color: #FFFFFF; padding: 7px 16px; font-size: 14px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 95px; transition: background-color 0.2s ease; }
+.btn-zona:hover { background-color: #5A0B0E; }
+.btn-zona .arrow { font-size: 9px; }
+.menu-zona { display: none; position: absolute; top: 0; left: 0; background-color: #7B1113; min-width: 95px; border-radius: 12px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25); overflow: hidden; z-index: 101; }
+.menu-zona.show { display: block; }
+.item-zona { color: #FFFFFF; padding: 6px 12px; text-decoration: none; display: block; font-size: 13px; font-weight: bold; text-align: center; transition: background-color 0.2s ease; }
+.item-zona:hover { background-color: #5A0B0E; }
+.contenido-principal { width: 100%; height: 420px; background-color: #D98880; border-radius: 2px; }
+
+/* =========================================
+   ESTILOS PARA LAS PANTALLAS DE REGISTRO / DATOS / FORMACIÓN
+   ========================================= */
+
+.registro-main {
+    padding: 30px 50px;
+    background-color: #ffffff;
+    flex: 1;
+}
+
+/* Badge de Usuario Superior Derecho */
+.user-badge-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #8A1527;
+    border-radius: 20px;
+    padding: 6px 15px;
+    color: #173459; 
+    font-weight: bold;
+    font-size: 13px;
+    background-color: #fff;
+}
+
+/* Estructura de Formulario y Columnas */
+.registro-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-columns {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px; 
+    margin-bottom: 50px;
+}
+
+.form-column {
+    flex: 1;
+}
+
+.col-header {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 25px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #000;
+    margin-top: 0;
+}
+
+/* Sistema de Grid para Inputs y Selects */
+.input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px; 
+}
+
+.input-grid.single-col {
+    grid-template-columns: 1fr;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.input-group label {
+    font-size: 14px;
+    color: #000;
+    margin-bottom: 5px;
+    text-align: center;
+    font-weight: normal;
+}
+
+/* Recuadros estandarizados para input y select */
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #666;
+    border-radius: 6px;
+    outline: none;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    font-size: 14px;
+    font-family: inherit;
+    color: #000;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #8A1527;
+}
+
+/* Instrucciones y grupo de Radio Buttons */
+.section-instruction {
+    font-size: 14px;
+    color: #000;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #000;
+    cursor: pointer;
+    width: 100%;
+    max-width: 240px;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-sizing: border-box;
+    transition: none;
+}
+
+.radio-option:hover {
+    background: transparent;
+}
+
+.radio-option input[type="radio"] {
+    accent-color: #8A1527;
+    cursor: pointer;
+}
+
+/* Cuadro de Información de Procedencia */
+.procedencia-info {
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.procedencia-info p {
+    margin: 6px 0;
+}
+
+.procedencia-info strong {
+    color: #000;
+}
+
+/* Botones Inferiores */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+}
+
+.btn-registro {
+    background-color: #8A1527;
+    color: white;
+    border: none;
+    padding: 10px 40px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 140px;
+    transition: background-color 0.2s;
+}
+
+.btn-registro:hover {
+    background-color: #6a101e;
+}
+
+/* =========================================
+   NUEVO: ESTILOS DE DOCUMENTOS BÁSICOS Y PROBATORIOS
+   ========================================= */
+
+.docs-columns {
+    gap: 50px;
+}
+
+/* Distribución asimétrica para dar más espacio a los 6 documentos */
+.basicos-col {
+    flex: 1.6;
+}
+
+.probatorios-col {
+    flex: 1;
+}
+
+/* Grid para mostrar 2 documentos por fila en "Documentos Básicos" */
+.doc-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px 40px;
+    padding-top: 15px;
+}
+
+.doc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.doc-icon-text {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Icono de documento */
+.doc-icon-text svg {
+    width: 26px;
+    height: 32px;
+    stroke: #333;
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.doc-text {
+    font-size: 15px;
+    color: #333;
+}
+
+/* Botón de "Añadir" redondeado claro */
+.btn-añadir {
+    background-color: #EBF4FA;
+    color: #173459;
+    border: none;
+    padding: 6px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-añadir:hover {
+    background-color: #d2e4f3;
+}
+
+/* Campo de Enlace a Drive */
+.link-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.link-input-group label {
+    font-size: 16px;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.link-input-group input {
+    width: 100%;
+    max-width: 380px;
+    padding: 8px 15px;
+    border: 1px solid #333;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    outline: none;
+}
+
+.link-input-group input:focus {
+    border-color: #8A1527;
+}
+
+/* Responsividad general */
+@media (max-width: 1024px) {
+    .form-columns {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .doc-list {
+        grid-template-columns: 1fr; /* En pantallas pequeñas, 1 columna */
+    }
+}
+
+/* =========================================
+   ESTILOS EXCLUSIVOS PARA RECUPERACIÓN DE CONTRASEÑA
+   (Prefijo 'rec-' para evitar conflictos)
+   ========================================= */
+
+/* Contenedor principal */
+.rec-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    flex: 1;
+}
+
+/* Formulario centrado con un ancho máximo para separar los botones */
+.rec-form {
+    width: 100%;
+    max-width: 850px; /* Da el espacio necesario para alinear los botones a los lados */
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+/* Título con línea inferior exacta */
+.rec-header-container {
+    width: 100%;
+    max-width: 450px;
+    border-bottom: 1.5px solid #000;
+    margin-bottom: 35px;
+    padding-bottom: 8px;
+    text-align: center;
+}
+
+.rec-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    margin: 0;
+}
+
+/* Contenedor de inputs centrado */
+.rec-inputs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+    max-width: 450px; /* Ancho idéntico al de la línea del título */
+    margin-bottom: 25px;
+}
+
+/* Estructura de cada input */
+.rec-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.rec-input-group label {
+    font-size: 14px;
+    color: #000;
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: normal;
+}
+
+.rec-input-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #666;
+    border-radius: 6px; /* Esquinas redondeadas suaves */
+    outline: none;
+    box-sizing: border-box;
+    font-size: 14px;
+    background-color: #ffffff;
+}
+
+.rec-input-group input:focus {
+    border-color: #8A1527;
+}
+
+/* Nota informativa */
+.rec-note {
+    text-align: center;
+    font-size: 14px;
+    color: #000;
+    margin-bottom: 70px;
+    max-width: 600px;
+}
+
+.rec-highlight {
+    color: #8A1527;
+    font-weight: bold;
+}
+
+/* Contenedor de botones (alineados a los extremos opuestos) */
+.rec-actions {
+    display: flex;
+    justify-content: space-between; /* Empuja los botones a los lados */
+    width: 100%;
+}
+
+.rec-btn {
+    background-color: #8A1527;
+    color: white;
+    border: none;
+    padding: 10px 45px;
+    border-radius: 10px; /* Bordes redondeados más pronunciados como en la imagen */
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 150px;
+    transition: background-color 0.2s;
+}
+
+.rec-btn:hover {
+    background-color: #6a101e;
+}
+
+/* Clase para el mensaje de estado del PHP */
+.rec-mensaje-sistema {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
