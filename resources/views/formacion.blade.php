@@ -103,7 +103,7 @@
 
             <!-- Botones de Acción -->
             <div class="form-actions">
-                <button type="button" class="btn-registro" onclick="window.location.href='/datos'">Anterior</button>
+                <button type="button" class="btn-registro" onclick="window.location.href='{{ route('index') }}'">Anterior</button>
                 <button type="submit" class="btn-registro" formaction="/documentos">Siguiente</button>
             </div>
         </form>

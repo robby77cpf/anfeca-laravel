@@ -46,10 +46,10 @@
 
         <div class="user-actions-right">
             <!-- Botón Cerrar Sesión -->
-            <a href="/index" class="btn-top btn-cerrar-sesion">Cerrar Sesión</a>
+            <a href="{{ route('index') }}" class="btn-top btn-cerrar-sesion">Cerrar Sesión</a>
 
             <!-- Botón de Usuario -->
-            <a href="/editarDatos" class="btn-user-profile" title="Editar Datos del Usuario">
+            <a href="{{ route('editarDatos') }}" class="btn-user-profile" title="Editar Datos del Usuario">
                 <div class="circle-icon">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 20h9"></path>
@@ -145,7 +145,7 @@
                             </a>
                         </td>
                         <td>
-                            <a href="/editarDatos" class="btn-action-icon" title="Editar">
+                            <a href="{{ route('editarDatos') }}" class="btn-action-icon" title="Editar">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2">
                                     <path d="M12 20h9"></path>
                                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -198,7 +198,7 @@
                             </a>
                         </td>
                         <td>
-                            <a href="/editarDatos" class="btn-action-icon" title="Editar">
+                            <a href="{{ route('editarDatos') }}" class="btn-action-icon" title="Editar">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2">
                                     <path d="M12 20h9"></path>
                                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -251,7 +251,7 @@
                             </a>
                         </td>
                         <td>
-                            <a href="/editarDatos" class="btn-action-icon" title="Editar">
+                            <a href="{{ route('editarDatos') }}" class="btn-action-icon" title="Editar">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2">
                                     <path d="M12 20h9"></path>
                                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>

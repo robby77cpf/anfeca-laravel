@@ -643,3 +643,136 @@ main.login-container {
     font-weight: bold;
 }
 
+/* =========================================
+   ESTILOS EXCLUSIVOS PARA PANTALLA DE BIENVENIDA (Laravel)
+   (Prefijo 'bienvenida-' para evitar conflictos)
+   ========================================= */
+
+.bienvenida-main {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 50px;
+    background-color: #ffffff;
+    flex: 1;
+    font-family: Arial, sans-serif;
+}
+
+/* Badge de Usuario Superior Derecho */
+.bienvenida-badge-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.bienvenida-user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #8A1527;
+    border-radius: 20px;
+    padding: 6px 15px;
+    color: #173459; /* Azul oscuro característico */
+    font-weight: bold;
+    font-size: 13px;
+    background-color: #fff;
+}
+
+.bienvenida-user-badge img {
+    width: 18px;
+    height: 18px;
+}
+
+/* Título de Bienvenida */
+.bienvenida-title-container {
+    margin-bottom: 40px;
+    padding-left: 8%; /* Ajuste para alinear con el contenido visual */
+}
+
+.bienvenida-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    display: inline-block; /* Esto asegura que la línea inferior abarque solo el texto */
+    border-bottom: 1.5px solid #000;
+    padding-bottom: 3px;
+    margin: 0;
+}
+
+/* Contenedor principal de los datos (3 columnas) */
+.bienvenida-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    margin-bottom: 60px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+/* Ícono grande izquierdo */
+.bienvenida-large-icon {
+    flex: 0 0 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bienvenida-large-icon img {
+    width: 100%;
+    height: auto;
+}
+
+/* Columnas de texto (Datos Personales y Contacto) */
+.bienvenida-datos-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    color: #173459; 
+}
+
+.bienvenida-subtitle {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    color: #173459;
+}
+
+.bienvenida-datos-col p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #173459;
+}
+
+.bienvenida-label {
+    font-weight: bold;
+}
+
+/* Botones Inferiores */
+.bienvenida-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 30px;
+}
+
+.bienvenida-btn {
+    background-color: #8A1527;
+    color: white;
+    border: none;
+    padding: 10px 40px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 140px;
+    transition: background-color 0.2s;
+}
+
+.bienvenida-btn:hover {
+    background-color: #6a101e;
+}

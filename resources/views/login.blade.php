@@ -7,10 +7,14 @@
     </div>
     
     <div class="form-section">
-        <form class="login-form">
+        <form class="login-form" method="POST" action="{{ route('login.attempt') }}">
+            @csrf
             <div class="form-group">
                 <label for="usuario">Usuario</label>
-                <input type="text" id="usuario" name="usuario" placeholder="">
+                <input type="text" id="usuario" name="usuario" value="{{ old('usuario') }}" required>
+                @error('usuario')
+                    <span class="highlight-rojo">{{ $message }}</span>
+                @enderror
             </div>
             
             <div class="form-group">
@@ -19,13 +23,13 @@
             </div>
             
             <div class="form-links">
-                <a href="/datos">Registrarse</a>
+                <a href="{{ route('registro.iniciar') }}">Registrarse</a>
                 <a href="/recuperar">Recuperar contraseña</a>
             </div>
             
             <div class="button-group">
-                <button type="button" class="btn" onclick="window.location.href='/datos'">Guía Paso a Paso</button>
-                <button type="button" class="btn" onclick="window.location.href='/datos'">Iniciar Sesión</button>
+                <button type="button" class="btn" onclick="window.location.href='{{ route('formacion') }}'">Guía Paso a Paso</button>
+                <button type="submit" class="btn">Iniciar Sesión</button>
             </div>
             
             <p class="login-notice">

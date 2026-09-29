@@ -40,10 +40,10 @@
 
         <div class="user-actions-right">
             <!-- Botón Cerrar Sesión -->
-            <a href="/index" class="btn-top btn-cerrar-sesion">Cerrar Sesión</a>
+            <a href="{{ route('index') }}" class="btn-top btn-cerrar-sesion">Cerrar Sesión</a>
 
             <!-- Botón de Usuario -->
-            <a href="/editarDatos" class="btn-user-profile" title="Editar Datos del Usuario">
+            <a href="{{ route('editarDatos') }}" class="btn-user-profile" title="Editar Datos del Usuario">
                 <div class="circle-icon">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 20h9"></path>

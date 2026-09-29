@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperación de Contraseña - ANFECA</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">    
 </head>
 <body>
 
@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <!-- Botones de Navegación -->
             <div class="rec-actions">
-                <button type="button" class="rec-btn" onclick="window.location.href='/index'">Anterior</button>
+                <button type="button" class="rec-btn" onclick="window.location.href='{{ route('index') }}'">Anterior</button>
                 <button type="submit" class="rec-btn">Siguiente</button>
             </div>
         </form>
