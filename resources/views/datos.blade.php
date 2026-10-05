@@ -25,7 +25,7 @@
             </div>
         </div> -->
 
-        <form class="registro-form" action="" method="POST">
+        <form class="registro-form" action="{{ route('datos') }}" method="POST">
 @csrf
             <div class="form-columns">
                 <div class="form-column">
@@ -122,7 +122,7 @@
 
             <div class="form-actions">
                 <button type="button" class="btn-registro" onclick="window.location.href='{{ route('index') }}'">Anterior</button>
-                <button type="submit" class="btn-registro" formaction="/formacion">Siguiente</button>
+                <button type="submit" class="btn-registro">Siguiente</button>
             </div>
         </form>
     </main>
