@@ -92,7 +92,7 @@
             // Oculta el select y regresa la etiqueta a Refrendo (Capturas 1, 2 y 3)
             contenedorInciso.classList.add('hidden');
             incisoSelect.required = false;
-            labelRefrendo.innerText = "No. de Refrendo Asignado";
+            labelRefrendo.innerText = "No. de Folio de Certificación";
         }
     }
 
