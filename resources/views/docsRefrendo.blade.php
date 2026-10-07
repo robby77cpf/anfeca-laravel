@@ -12,7 +12,7 @@
 
     <!-- Formulario de Documentos -->
     <!-- Nota: Se añade enctype="multipart/form-data" para permitir la subida de archivos -->
-    <form action="{{ route('tu.ruta.guardar_documentos') }}" method="POST" enctype="multipart/form-data" class="docs-form">
+    <form action="{{ route('docsRefrendo') }}" method="POST" enctype="multipart/form-data" class="docs-form">
         @csrf
         
         <div class="docs-grid">

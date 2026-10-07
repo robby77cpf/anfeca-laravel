@@ -71,6 +71,7 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
 })->name('datos');
 Route::match(['get', 'post'], '/formacion', fn () => view('formacion'))->name('formacion');
 Route::match(['get', 'post'], '/documentos', fn () => view('documentos'))->name('documentos');
+Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))->name('docsRefrendo');
 Route::get('/certificacion', fn () => view('certificacion'))->name('certificacion');
 Route::post('/certificacion', function (Request $request) {
     $validated = $request->validate([
