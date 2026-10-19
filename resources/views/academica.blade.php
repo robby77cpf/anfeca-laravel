@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha: Último Grado de Estudios (Sin sección de documentos) -->
+            <!-- Columna Derecha: Último Grado de Estudios -->
             <div class="reg-acad-col">
                 <h2 class="reg-acad-title">Último Grado de Estudios</h2>
                 <hr class="reg-acad-divider">
@@ -93,6 +93,43 @@
                         <option value="">Seleccione primero un nivel</option>
                         <!-- Se llena mediante JS dependiendo de la selección superior -->
                     </select>
+                </div>
+
+                <!-- Subida de Documentos Último Grado -->
+                <div class="reg-acad-uploads">
+                    <div class="reg-acad-upload-row">
+                        <div class="reg-acad-doc-info">
+                            <svg class="reg-acad-doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <path d="M14 2v6h6"></path>
+                                <line x1="8" y1="13" x2="16" y2="13"></line>
+                                <line x1="8" y1="17" x2="16" y2="17"></line>
+                                <line x1="8" y1="9" x2="10" y2="9"></line>
+                            </svg>
+                            <span>Título de último grado</span>
+                        </div>
+                        <label class="reg-acad-btn-add">
+                            <span class="reg-acad-btn-text">Añadir</span>
+                            <input type="file" name="doc_ultimo_titulo" class="reg-acad-file-input" accept=".pdf,.jpg,.jpeg,.png">
+                        </label>
+                    </div>
+
+                    <div class="reg-acad-upload-row">
+                        <div class="reg-acad-doc-info">
+                            <svg class="reg-acad-doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <path d="M14 2v6h6"></path>
+                                <line x1="8" y1="13" x2="16" y2="13"></line>
+                                <line x1="8" y1="17" x2="16" y2="17"></line>
+                                <line x1="8" y1="9" x2="10" y2="9"></line>
+                            </svg>
+                            <span>Cédula de último grado</span>
+                        </div>
+                        <label class="reg-acad-btn-add">
+                            <span class="reg-acad-btn-text">Añadir</span>
+                            <input type="file" name="doc_ultimo_cedula" class="reg-acad-file-input" accept=".pdf,.jpg,.jpeg,.png">
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
