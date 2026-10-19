@@ -1099,3 +1099,134 @@ main.login-container {
 .btn-red:hover {
     background-color: #630c11;
 }
+
+/* =========================================
+   ESTILOS EXCLUSIVOS PARA PANTALLA DE ACADEMIA / FORMACIÓN
+   
+   ========================================= */
+
+.reg-acad-container {
+        font-family: Arial, sans-serif;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        color: #000;
+    }
+    .reg-acad-grid {
+        display: flex;
+        gap: 60px;
+        margin-bottom: 40px;
+    }
+    .reg-acad-col {
+        flex: 1;
+    }
+    .reg-acad-title {
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .reg-acad-divider {
+        border: 0;
+        border-top: 2px solid #888;
+        margin-bottom: 30px;
+    }
+    .reg-acad-form-group {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .reg-acad-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    .reg-acad-select {
+        width: 80%;
+        padding: 6px;
+        border: 1px solid #777;
+        background-color: #fff;
+        font-size: 0.95rem;
+        outline: none;
+        border-radius: 2px;
+    }
+    /* Clase para el select fijo que no puede ser alterado */
+    .reg-acad-select.fixed {
+        background-color: #e9ecef;
+        pointer-events: none;
+        color: #555;
+    }
+    .reg-acad-uploads {
+        margin-top: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        width: 85%;
+        margin: 40px auto 0;
+    }
+    .reg-acad-upload-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .reg-acad-doc-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 1.1rem;
+    }
+    .reg-acad-doc-icon {
+        width: 35px;
+        height: 35px;
+        color: #000;
+    }
+    .reg-acad-btn-add {
+        background-color: #e5f2f9;
+        color: #000;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-width: 90px;
+    }
+    .reg-acad-btn-add input[type="file"] {
+        display: none;
+    }
+    /* Clase de estado para cuando el archivo es cargado */
+    .reg-acad-btn-success {
+        background-color: #28a745 !important;
+        color: #fff !important;
+    }
+    .reg-acad-nav-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 50px;
+        padding-top: 20px;
+    }
+    .reg-acad-btn-nav {
+        background-color: #8c1d22;
+        color: #fff;
+        border: none;
+        padding: 12px 35px;
+        border-radius: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1.05rem;
+        transition: background-color 0.2s ease;
+    }
+    .reg-acad-btn-nav:hover {
+        background-color: #6b1519;
+    }
+
+    @media (max-width: 800px) {
+        .reg-acad-grid {
+            flex-direction: column;
+            gap: 40px;
+        }
+        .reg-acad-select, .reg-acad-uploads {
+            width: 100%;
+        }
+    }
