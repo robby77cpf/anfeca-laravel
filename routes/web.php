@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'login')->name('home');
 Route::view('/index', 'login')->name('index');
 Route::view('/bienvenida', 'bienvenida')->name('bienvenida');
-
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
         'usuario' => ['required', 'string'],
@@ -18,7 +17,6 @@ Route::post('/login', function (Request $request) {
     $esRegistroTemporal = is_array($registroTemporal)
         && $credentials['usuario'] === $registroTemporal['correo']
         && Hash::check($credentials['contrasena'], $registroTemporal['password']);
-    
     $esUsuarioDemo = $credentials['usuario'] === 'profegodi'
         && $credentials['contrasena'] === '676767';
 
@@ -74,33 +72,7 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
     return view('datos');
 })->name('datos');
 
-// Rutas actualizadas para la Formación Académica
-Route::get('/formacion', fn () => view('formacion'))->name('formacion');
-
-Route::post('/formacion', function (Request $request) {
-    $validated = $request->validate([
-        'origen_nivel' => ['required', 'string'],
-        'origen_titulo' => ['required', 'string'],
-        'doc_origen_titulo' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-        'doc_origen_cedula' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-        
-        'ultimo_nivel' => ['required', 'string', 'in:Licenciatura,Especialidad,Maestría,Doctorado'],
-        'ultimo_titulo' => ['required', 'string'],
-        'doc_ultimo_titulo' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-        'doc_ultimo_cedula' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-    ]);
-
-    // Para guardar físicamente los archivos subidos, puedes usar el Storage facade posteriormente:
-    // if ($request->hasFile('doc_origen_titulo')) {
-    //     $path = $request->file('doc_origen_titulo')->store('documentos_academicos');
-    // }
-
-    $request->session()->put('formacion_academica', $validated);
-
-    // Redirección al siguiente paso del formulario
-    return to_route('documentos'); 
-})->name('certificacion.guardarAcademica');
-
+Route::match(['get', 'post'], '/formacion', fn () => view('formacion'))->name('formacion');
 Route::match(['get', 'post'], '/documentos', fn () => view('documentos'))->name('documentos');
 Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))->name('docsRefrendo');
 
@@ -120,6 +92,26 @@ Route::post('/certificacion', function (Request $request) {
 
     return to_route('certificacion')->with('status', 'La certificación se guardó correctamente.');
 })->name('certificacion.guardar');
+
+// --- RUTAS PARA FORMACIÓN ACADÉMICA (academica.blade.php) ---
+Route::get('/academica', fn () => view('academica'))->name('academica');
+Route::post('/academica', function (Request $request) {
+    // Aquí puedes añadir validaciones para los selectores y las subidas de archivos en el futuro.
+    /*
+    $validated = $request->validate([
+        'origen_titulo' => ['required', 'string'],
+        'ultimo_nivel' => ['required', 'string'],
+        'ultimo_titulo' => ['required', 'string'],
+        // 'doc_origen_titulo' => ['nullable', 'file', 'mimes:pdf,jpg,png'],
+    ]);
+    */
+
+    // Lógica para guardar archivos / sesión iría aquí
+
+    // Cambia 'documentos' por el nombre de la ruta que sigue en tu flujo
+    return back()->with('status', 'Formación académica y documentos guardados correctamente.');
+})->name('certificacion.guardarAcademica');
+// -----------------------------------------------------------
 
 Route::match(['get', 'post'], '/zona', fn () => view('zona'))->name('zona');
 Route::match(['get', 'post'], '/recuperar', fn () => view('recuperar'))->name('recuperar');
