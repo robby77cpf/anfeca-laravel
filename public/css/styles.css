@@ -1107,15 +1107,28 @@ main.login-container {
 
 .reg-acad-container {
         font-family: Arial, sans-serif;
-        max-width: 1100px;
+        width: 100%;
+        max-width: 1200px;
         margin: 0 auto;
         padding: 40px 20px;
         color: #000;
+        /* Asegura que el contenedor abarque espacio vertical para empujar el footer */
+        min-height: 65vh; 
+        display: flex;
+        flex-direction: column;
     }
+    
+    .reg-acad-form {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; /* Permite que el formulario ocupe el espacio restante */
+    }
+
     .reg-acad-grid {
         display: flex;
-        gap: 60px;
+        gap: 80px;
         margin-bottom: 40px;
+        flex-grow: 1;
     }
     .reg-acad-col {
         flex: 1;
@@ -1149,7 +1162,6 @@ main.login-container {
         outline: none;
         border-radius: 2px;
     }
-    /* Clase para el select fijo que no puede ser alterado */
     .reg-acad-select.fixed {
         background-color: #e9ecef;
         pointer-events: none;
@@ -1195,22 +1207,24 @@ main.login-container {
     .reg-acad-btn-add input[type="file"] {
         display: none;
     }
-    /* Clase de estado para cuando el archivo es cargado */
     .reg-acad-btn-success {
         background-color: #28a745 !important;
         color: #fff !important;
     }
+    
+    /* Botones de navegación ajustados a los bordes */
     .reg-acad-nav-actions {
         display: flex;
         justify-content: space-between;
-        margin-top: 50px;
-        padding-top: 20px;
+        width: 100%;
+        margin-top: auto; /* Empuja los botones hacia abajo */
+        padding-top: 40px;
     }
     .reg-acad-btn-nav {
         background-color: #8c1d22;
         color: #fff;
         border: none;
-        padding: 12px 35px;
+        padding: 12px 40px;
         border-radius: 12px;
         font-weight: bold;
         cursor: pointer;
