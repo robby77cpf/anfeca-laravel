@@ -1,28 +1,27 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'login')->name('home');
 Route::view('/index', 'login')->name('index');
 Route::view('/bienvenida', 'bienvenida')->name('bienvenida');
+
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
         'usuario' => ['required', 'string'],
         'contrasena' => ['required', 'string'],
     ]);
 
-    $registroTemporal = $request->session()->get('registro_temporal');
-    $esRegistroTemporal = is_array($registroTemporal)
-        && $credentials['usuario'] === $registroTemporal['correo']
-        && Hash::check($credentials['contrasena'], $registroTemporal['password']);
-    $esUsuarioDemo = $credentials['usuario'] === 'profegodi'
-        && $credentials['contrasena'] === '676767';
+    $usuario = DB::table('usuario')->where('usua_nombre', $credentials['usuario'])->first();
 
-    if (! $esRegistroTemporal && ! $esUsuarioDemo) {
+    if (! $usuario || ! Hash::check($credentials['contrasena'], $usuario->usua_contrasenia)) {
         return back()->withErrors(['usuario' => 'Usuario o contraseña incorrectos.'])->onlyInput('usuario');
     }
+
+    $request->session()->put('usuario_id', $usuario->usua_id_usuario);
 
     return to_route('bienvenida');
 })->name('login.attempt');
@@ -40,42 +39,89 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
 
     if ($request->isMethod('post')) {
         $datos = $request->validate([
-            'curp' => ['required', 'string'],
+            'curp' => ['required', 'string', 'max:18'],
             'nombres' => ['required', 'string'],
-            'rfc' => ['required', 'string'],
+            'rfc' => ['required', 'string', 'max:13'],
             'apellido_p' => ['required', 'string'],
-            'cedula' => ['required', 'string'],
+            'cedula' => ['required', 'string', 'max:20'],
             'apellido_m' => ['nullable', 'string'],
-            'password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8'],
             'password_conf' => ['required', 'same:password'],
             'calle' => ['required', 'string'],
-            'estado' => ['required', 'string'],
+            'estado' => ['required', 'integer', 'exists:estado,esta_id_estado'],
             'num_ext' => ['required', 'string'],
             'colonia' => ['required', 'string'],
             'num_int' => ['nullable', 'string'],
-            'municipio' => ['required', 'string'],
-            'cp' => ['required', 'string'],
-            'correo' => ['required', 'email'],
+            'municipio' => ['required', 'integer', 'exists:alcaldia,alca_id_alcaldia'],
+            'cp' => ['required', 'string', 'max:5'],
+            'correo' => ['required', 'email', 'unique:persona,pers_correo_electronico'],
             'tel_particular' => ['required', 'string'],
             'tel_celular' => ['required', 'string'],
         ]);
 
-        $request->session()->put('registro_temporal', [
-            'correo' => $datos['correo'],
-            'password' => Hash::make($datos['password']),
-        ]);
+        DB::transaction(function () use ($datos) {
+            $personaId = DB::selectOne("SELECT nextval('persona_pers_id_persona_seq') AS id")->id;
+            $usuarioId = DB::selectOne("SELECT nextval('usuario_usua_id_usuario_seq') AS id")->id;
+
+            $colonia = DB::table('colonia')->where('colo_nombre', $datos['colonia'])->first();
+            $coloniaId = $colonia?->colo_id_colonia
+                ?? DB::table('colonia')->insertGetId(['colo_nombre' => $datos['colonia']], 'colo_id_colonia');
+
+            $domicilioId = DB::table('domicilio')->insertGetId([
+                'domi_id_estado' => $datos['estado'],
+                'domi_id_alcaldia' => $datos['municipio'],
+                'domi_id_colonia' => $coloniaId,
+                'domi_calle' => $datos['calle'],
+                'domi_numero_exterior' => $datos['num_ext'],
+                'domi_numero_interior' => $datos['num_int'] ?? null,
+                'domi_codigo_postal' => $datos['cp'],
+            ], 'domi_id_domicilio');
+
+            $rolId = DB::table('rol')->where('rol_nombre', 'Solicitante')->value('rol_id_rol');
+
+            DB::table('usuario')->insert([
+                'usua_id_usuario' => $usuarioId,
+                'usua_id_persona' => $personaId,
+                'usual_id_rol' => $rolId,
+                'usua_nombre' => $datos['correo'],
+                'usua_contrasenia' => Hash::make($datos['password']),
+                'usua_estatus' => 'Activo',
+            ]);
+
+            DB::table('persona')->insert([
+                'pers_id_persona' => $personaId,
+                'pers_id_domicilio' => $domicilioId,
+                'pers_id_usuario' => $usuarioId,
+                'pers_nombre' => $datos['nombres'],
+                'pers_apellido_paterno' => $datos['apellido_p'],
+                'pers_apellido_materno' => $datos['apellido_m'] ?? null,
+                'pers_curp' => $datos['curp'],
+                'pers_rfc' => $datos['rfc'],
+                'pers_cedula_profesional' => $datos['cedula'],
+                'pers_correo_electronico' => $datos['correo'],
+            ]);
+
+            $tipoTelefonoId = DB::table('tipo_contacto')->where('tico_nombre', 'Teléfono')->value('tico_id_tipo_contacto');
+            DB::table('contacto')->insert([
+                ['cont_id_persona' => $personaId, 'cont_id_tipo_contacto' => $tipoTelefonoId, 'cont_contacto' => $datos['tel_particular']],
+                ['cont_id_persona' => $personaId, 'cont_id_tipo_contacto' => $tipoTelefonoId, 'cont_contacto' => $datos['tel_celular']],
+            ]);
+        });
+
         $request->session()->forget('registro_iniciado');
 
-        return to_route('index');
+        return to_route('index')->with('status', 'Registro guardado. Ya puedes iniciar sesión con tu correo y contraseña.');
     }
 
-    return view('datos');
+    return view('datos', [
+        'estados' => DB::table('estado')->orderBy('esta_nombre')->get(),
+        'alcaldias' => DB::table('alcaldia')->orderBy('alca_nombre')->get(),
+    ]);
 })->name('datos');
 
 Route::match(['get', 'post'], '/formacion', fn () => view('formacion'))->name('formacion');
 Route::match(['get', 'post'], '/documentos', fn () => view('documentos'))->name('documentos');
 Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))->name('docsRefrendo');
-
 Route::get('/certificacion', fn () => view('certificacion'))->name('certificacion');
 Route::post('/certificacion', function (Request $request) {
     $validated = $request->validate([
@@ -92,27 +138,6 @@ Route::post('/certificacion', function (Request $request) {
 
     return to_route('certificacion')->with('status', 'La certificación se guardó correctamente.');
 })->name('certificacion.guardar');
-
-// --- RUTAS PARA FORMACIÓN ACADÉMICA (academica.blade.php) ---
-Route::get('/academica', fn () => view('academica'))->name('academica');
-Route::post('/academica', function (Request $request) {
-    // Aquí puedes añadir validaciones para los selectores y las subidas de archivos en el futuro.
-    /*
-    $validated = $request->validate([
-        'origen_titulo' => ['required', 'string'],
-        'ultimo_nivel' => ['required', 'string'],
-        'ultimo_titulo' => ['required', 'string'],
-        // 'doc_origen_titulo' => ['nullable', 'file', 'mimes:pdf,jpg,png'],
-    ]);
-    */
-
-    // Lógica para guardar archivos / sesión iría aquí
-
-    // Cambia 'documentos' por el nombre de la ruta que sigue en tu flujo
-    return back()->with('status', 'Formación académica y documentos guardados correctamente.');
-})->name('certificacion.guardarAcademica');
-// -----------------------------------------------------------
-
 Route::match(['get', 'post'], '/zona', fn () => view('zona'))->name('zona');
 Route::match(['get', 'post'], '/recuperar', fn () => view('recuperar'))->name('recuperar');
 Route::redirect('/editarDatos', '/index')->name('editarDatos');
