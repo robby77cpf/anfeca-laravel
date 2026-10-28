@@ -133,60 +133,71 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
             'tel_celular' => ['required', 'string'],
         ]);
 
-        DB::transaction(function () use ($datos) {
-            // 1. Colonia
-            $colonia = DB::table('colonia')->where('colo_nombre', $datos['colonia'])->first();
-            $coloniaId = $colonia?->colo_id_colonia
-                ?? DB::table('colonia')->insertGetId(['colo_nombre' => $datos['colonia']], 'colo_id_colonia');
+    DB::transaction(function () use ($datos) {
+        // 1. Obtener los IDs como ya lo hacias
+        $personaId = DB::selectOne("SELECT nextval('persona_pers_id_persona_seq') AS id")->id;
+        $usuarioId = DB::selectOne("SELECT nextval('usuario_usua_id_usuario_seq') AS id")->id;
 
-            // 2. Domicilio
-            $domicilioId = DB::table('domicilio')->insertGetId([
-                'domi_id_estado' => $datos['estado'],
-                'domi_id_alcaldia' => $datos['municipio'],
-                'domi_id_colonia' => $coloniaId,
-                'domi_calle' => $datos['calle'],
-                'domi_numero_exterior' => $datos['num_ext'],
-                'domi_numero_interior' => $datos['num_int'] ?? null,
-                'domi_codigo_postal' => $datos['cp'],
-            ], 'domi_id_domicilio');
+        // 2. Colonia y Domicilio (Se queda igual)
+        $colonia = DB::table('colonia')->where('colo_nombre', $datos['colonia'])->first();
+        $coloniaId = $colonia?->colo_id_colonia
+            ?? DB::table('colonia')->insertGetId(['colo_nombre' => $datos['colonia']], 'colo_id_colonia');
 
-            // 3. Insertar Persona PRIMERO (usando la corrección de insertGetId)
-            // Se omite temporalmente 'pers_id_usuario' para no romper la llave foránea
-            $personaId = DB::table('persona')->insertGetId([
-                'pers_id_domicilio' => $domicilioId,
-                'pers_nombre' => $datos['nombres'],
-                'pers_apellido_paterno' => $datos['apellido_p'],
-                'pers_apellido_materno' => $datos['apellido_m'] ?? null,
-                'pers_curp' => $datos['curp'],
-                'pers_rfc' => $datos['rfc'],
-                'pers_cedula_profesional' => $datos['cedula'],
-                'pers_correo_electronico' => $datos['correo'],
-            ], 'pers_id_persona');
+        $domicilioId = DB::table('domicilio')->insertGetId([
+            'domi_id_estado' => $datos['estado'],
+            'domi_id_alcaldia' => $datos['municipio'],
+            'domi_id_colonia' => $coloniaId,
+            'domi_calle' => $datos['calle'],
+            'domi_numero_exterior' => $datos['num_ext'],
+            'domi_numero_interior' => $datos['num_int'] ?? null,
+            'domi_codigo_postal' => $datos['cp'],
+        ], 'domi_id_domicilio');
 
-            // 4. Obtener el ID del Rol
-            $rolId = DB::table('rol')->where('rol_nombre', 'Solicitante')->value('rol_id_rol');
+        $rolId = DB::table('rol')->where('rol_nombre', 'Solicitante')->value('rol_id_rol');
 
-            // 5. Insertar Usuario DESPUÉS, vinculándolo a la persona ya existente
-            $usuarioId = DB::table('usuario')->insertGetId([
-                'usua_id_persona' => $personaId,
-                'usual_id_rol' => $rolId,
-                'usua_nombre' => $datos['correo'],
-                'usua_contrasenia' => Hash::make($datos['password']),
-                'usua_estatus' => 'Activo',
-            ], 'usua_id_usuario');
+        // ---------------- CAMBIO CRÍTICO DE ORDEN ---------------- //
 
-            // 6. Actualizar la Persona con el ID del Usuario recién creado
-            DB::table('persona')
-                ->where('pers_id_persona', $personaId)
-                ->update(['pers_id_usuario' => $usuarioId]);
+        // 3. INSERTAR PERSONA PRIMERO 
+        // (Omitimos 'pers_id_usuario' o lo mandamos como null para que no marque error)
+        DB::table('persona')->insert([
+            'pers_id_persona' => $personaId,
+            'pers_id_domicilio' => $domicilioId,
+            'pers_id_usuario' => null, // <-- NULO TEMPORALMENTE
+            'pers_nombre' => $datos['nombres'],
+            'pers_apellido_paterno' => $datos['apellido_p'],
+            'pers_apellido_materno' => $datos['apellido_m'] ?? null,
+            'pers_curp' => $datos['curp'],
+            'pers_rfc' => $datos['rfc'],
+            'pers_cedula_profesional' => $datos['cedula'],
+            'pers_correo_electronico' => $datos['correo'],
+        ]);
 
-            // 7. Insertar Contactos
-            $tipoTelefonoId = DB::table('tipo_contacto')->where('tico_nombre', 'Teléfono')->value('tico_id_tipo_contacto');
-            DB::table('contacto')->insert([
-                ['cont_id_persona' => $personaId, 'cont_id_tipo_contacto' => $tipoTelefonoId, 'cont_contacto' => $datos['tel_particular']],
-                ['cont_id_persona' => $personaId, 'cont_id_tipo_contacto' => $tipoTelefonoId, 'cont_contacto' => $datos['tel_celular']],
-            ]);
-        });
+        // 4. INSERTAR USUARIO DESPUÉS
+        // (Ahora sí podemos asignarle la persona porque ya existe en la BD)
+        DB::table('usuario')->insert([
+            'usua_id_usuario' => $usuarioId,
+            'usua_id_persona' => $personaId,
+            'usual_id_rol' => $rolId,
+            'usua_nombre' => $datos['correo'],
+            'usua_contrasenia' => Hash::make($datos['password']),
+            'usua_estatus' => 'Activo',
+        ]);
+
+        // 5. ACTUALIZAR LA PERSONA
+        // (Le devolvemos a la persona el ID de su usuario)
+        DB::table('persona')
+            ->where('pers_id_persona', $personaId)
+            ->update(['pers_id_usuario' => $usuarioId]);
+
+        // ---------------- FIN DEL CAMBIO ---------------- //
+
+        // 6. Insertar Contactos (Se queda igual)
+        $tipoTelefonoId = DB::table('tipo_contacto')->where('tico_nombre', 'Teléfono')->value('tico_id_tipo_contacto');
+        DB::table('contacto')->insert([
+            ['cont_id_persona' => $personaId, 'cont_id_tipo_contacto' => $tipoTelefonoId, 'cont_contacto' => $datos['tel_particular']],
+            ['cont_id_persona' => $personaId, 'cont_id_tipo_contacto' => $tipoTelefonoId, 'cont_contacto' => $datos['tel_celular']],
+        ]);
+    });
 
         $request->session()->forget('registro_iniciado');
 
