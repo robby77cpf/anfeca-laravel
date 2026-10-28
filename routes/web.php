@@ -60,13 +60,12 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
         ]);
 
         DB::transaction(function () use ($datos) {
-            $personaId = DB::selectOne("SELECT nextval('persona_pers_id_persona_seq') AS id")->id;
-            $usuarioId = DB::selectOne("SELECT nextval('usuario_usua_id_usuario_seq') AS id")->id;
-
+            // 1. Colonia
             $colonia = DB::table('colonia')->where('colo_nombre', $datos['colonia'])->first();
             $coloniaId = $colonia?->colo_id_colonia
                 ?? DB::table('colonia')->insertGetId(['colo_nombre' => $datos['colonia']], 'colo_id_colonia');
 
+            // 2. Domicilio
             $domicilioId = DB::table('domicilio')->insertGetId([
                 'domi_id_estado' => $datos['estado'],
                 'domi_id_alcaldia' => $datos['municipio'],
@@ -77,21 +76,10 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
                 'domi_codigo_postal' => $datos['cp'],
             ], 'domi_id_domicilio');
 
-            $rolId = DB::table('rol')->where('rol_nombre', 'Solicitante')->value('rol_id_rol');
-
-            DB::table('usuario')->insert([
-                'usua_id_usuario' => $usuarioId,
-                'usua_id_persona' => $personaId,
-                'usual_id_rol' => $rolId,
-                'usua_nombre' => $datos['correo'],
-                'usua_contrasenia' => Hash::make($datos['password']),
-                'usua_estatus' => 'Activo',
-            ]);
-
-            DB::table('persona')->insert([
-                'pers_id_persona' => $personaId,
+            // 3. Insertar Persona PRIMERO (usando la corrección de insertGetId)
+            // Se omite temporalmente 'pers_id_usuario' para no romper la llave foránea
+            $personaId = DB::table('persona')->insertGetId([
                 'pers_id_domicilio' => $domicilioId,
-                'pers_id_usuario' => $usuarioId,
                 'pers_nombre' => $datos['nombres'],
                 'pers_apellido_paterno' => $datos['apellido_p'],
                 'pers_apellido_materno' => $datos['apellido_m'] ?? null,
@@ -99,8 +87,26 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
                 'pers_rfc' => $datos['rfc'],
                 'pers_cedula_profesional' => $datos['cedula'],
                 'pers_correo_electronico' => $datos['correo'],
-            ]);
+            ], 'pers_id_persona');
 
+            // 4. Obtener el ID del Rol
+            $rolId = DB::table('rol')->where('rol_nombre', 'Solicitante')->value('rol_id_rol');
+
+            // 5. Insertar Usuario DESPUÉS, vinculándolo a la persona ya existente
+            $usuarioId = DB::table('usuario')->insertGetId([
+                'usua_id_persona' => $personaId,
+                'usual_id_rol' => $rolId,
+                'usua_nombre' => $datos['correo'],
+                'usua_contrasenia' => Hash::make($datos['password']),
+                'usua_estatus' => 'Activo',
+            ], 'usua_id_usuario');
+
+            // 6. Actualizar la Persona con el ID del Usuario recién creado
+            DB::table('persona')
+                ->where('pers_id_persona', $personaId)
+                ->update(['pers_id_usuario' => $usuarioId]);
+
+            // 7. Insertar Contactos
             $tipoTelefonoId = DB::table('tipo_contacto')->where('tico_nombre', 'Teléfono')->value('tico_id_tipo_contacto');
             DB::table('contacto')->insert([
                 ['cont_id_persona' => $personaId, 'cont_id_tipo_contacto' => $tipoTelefonoId, 'cont_contacto' => $datos['tel_particular']],
