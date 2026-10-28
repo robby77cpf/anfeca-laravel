@@ -46,7 +46,7 @@
 
         <div class="user-actions-right">
             <!-- Botón Cerrar Sesión -->
-            <a href="{{ route('index') }}" class="btn-top btn-cerrar-sesion">Cerrar Sesión</a>
+            <a href="{{ route('logout') }}" class="btn-top btn-cerrar-sesion">Cerrar Sesión</a>
 
             <!-- Botón de Usuario -->
             <a href="{{ route('editarDatos') }}" class="btn-user-profile" title="Editar Datos del Usuario">
@@ -61,7 +61,7 @@
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                 </div>
-                <span class="user-label">Usuario: <strong>Victor Godínez Paredes</strong></span>
+                <span class="user-label">Usuario: <strong>{{ session('usuario_nombre') }}</strong></span>
             </a>
         </div>
     </div>

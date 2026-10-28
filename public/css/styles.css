@@ -786,17 +786,18 @@ main.login-container {
     align-items: center;
     background-color: #ffffff;
     min-height: 60vh;
-    padding: 20px 40px;
+    padding: 30px 50px;
     color: #333;
 }
 
 /* Etiqueta del Usuario */
-.user-badge-container {
+.certification-container > .user-badge-container {
     width: 100%;
-    max-width: 900px;
+    max-width: none;
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 30px;
+    align-self: stretch;
+    margin-bottom: 20px;
 }
 
 .user-badge {

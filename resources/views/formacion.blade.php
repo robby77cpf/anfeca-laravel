@@ -26,16 +26,17 @@
             </div>
         </div> -->
 
-        <form class="registro-form" action="" method="POST">
-@csrf
+        <form class="registro-form" action="{{ route('formacion') }}" method="POST">
+            @csrf
+
             <!-- Estructura principal en 3 columnas alineadas con datos.php -->
             <div class="form-columns">
-                
+
                 <!-- Columna 1: Certificación -->
                 <div class="form-column">
                     <h2 class="col-header">Certificación</h2>
                     <p class="section-instruction">Seleccione la Certificación Académica a la que se aspira*</p>
-                    
+
                     <div class="radio-group">
                         <label class="radio-option">
                             <input type="radio" name="certificacion" value="ANFECA" required>
@@ -55,7 +56,7 @@
                 <!-- Columna 2: Personal Académico -->
                 <div class="form-column">
                     <h2 class="col-header">Personal Académico</h2>
-                    
+
                     <div class="input-grid single-col">
                         <div class="input-group">
                             <label for="tipo_personal">Tipo de Personal Académico*</label>
@@ -84,7 +85,7 @@
                 <!-- Columna 3: Institución de Procedencia -->
                 <div class="form-column">
                     <h2 class="col-header">Institución de Procedencia</h2>
-                    
+
                     <div class="input-grid single-col">
                         <div class="input-group">
                             <label for="num_afiliacion">Número de Afiliación*</label>
@@ -103,8 +104,8 @@
 
             <!-- Botones de Acción -->
             <div class="form-actions">
-                <button type="button" class="btn-registro" onclick="window.location.href='{{ route('index') }}'">Anterior</button>
-                <button type="submit" class="btn-registro" formaction="/documentos">Siguiente</button>
+                <a href="{{ route('index') }}" class="btn-registro" style="text-decoration:none; display:inline-block; text-align:center;">Anterior</a>
+                <a href="{{ route('certificacion') }}" class="btn-registro" style="text-decoration:none; display:inline-block; text-align:center;">Siguiente</a>
             </div>
         </form>
     </main>
