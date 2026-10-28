@@ -7,7 +7,68 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'login')->name('home');
 Route::view('/index', 'login')->name('index');
-Route::view('/bienvenida', 'bienvenida')->name('bienvenida');
+
+Route::get('/bienvenida', function (Request $request) {
+    $usuarioId = $request->session()->get('usuario_id');
+
+    // Si no hay sesión iniciada, regresa al login
+    if (! $usuarioId) {
+        return to_route('index');
+    }
+
+    $persona = DB::table('usuario')
+        ->join('persona', 'persona.pers_id_persona', '=', 'usuario.usua_id_persona')
+        ->join('domicilio', 'domicilio.domi_id_domicilio', '=', 'persona.pers_id_domicilio')
+        ->join('colonia', 'colonia.colo_id_colonia', '=', 'domicilio.domi_id_colonia')
+        ->join('alcaldia', 'alcaldia.alca_id_alcaldia', '=', 'domicilio.domi_id_alcaldia')
+        ->join('estado', 'estado.esta_id_estado', '=', 'domicilio.domi_id_estado')
+        ->where('usuario.usua_id_usuario', $usuarioId)
+        ->select(
+            'persona.*',
+            'domicilio.domi_calle',
+            'domicilio.domi_numero_exterior',
+            'domicilio.domi_numero_interior',
+            'domicilio.domi_codigo_postal',
+            'colonia.colo_nombre',
+            'alcaldia.alca_nombre',
+            'estado.esta_nombre'
+        )
+        ->first();
+
+    if (! $persona) {
+        // Usuarios sin persona (coordinador / superadministrador) van a su pantalla
+        $rol = DB::table('usuario')
+            ->join('rol', 'rol.rol_id_rol', '=', 'usuario.usual_id_rol')
+            ->where('usuario.usua_id_usuario', $usuarioId)
+            ->value('rol.rol_nombre');
+
+        if ($rol && in_array(strtolower($rol), ['coordinador', 'superadministrador'], true)) {
+            return to_route('zona');
+        }
+
+        // El usuario ya no existe en la base: cierra la sesión
+        $request->session()->forget('usuario_id');
+
+        return to_route('index');
+    }
+
+    // Los teléfonos se guardaron en orden: primero particular, luego celular
+    $telefonos = DB::table('contacto')
+        ->where('cont_id_persona', $persona->pers_id_persona)
+        ->orderByRaw('ctid')
+        ->pluck('cont_contacto');
+
+    $nombreCompleto = trim(
+        $persona->pers_nombre.' '.$persona->pers_apellido_paterno.' '.($persona->pers_apellido_materno ?? '')
+    );
+
+    return view('bienvenida', [
+        'persona' => $persona,
+        'nombreCompleto' => $nombreCompleto,
+        'telParticular' => $telefonos[0] ?? '',
+        'telCelular' => $telefonos[1] ?? '',
+    ]);
+})->name('bienvenida');
 
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
@@ -21,10 +82,23 @@ Route::post('/login', function (Request $request) {
         return back()->withErrors(['usuario' => 'Usuario o contraseña incorrectos.'])->onlyInput('usuario');
     }
 
+    $request->session()->regenerate();
     $request->session()->put('usuario_id', $usuario->usua_id_usuario);
+    $request->session()->put('usuario_nombre', $usuario->usua_nombre);
 
-    return to_route('bienvenida');
+    $rol = DB::table('rol')->where('rol_id_rol', $usuario->usual_id_rol)->value('rol_nombre');
+
+    return in_array(strtolower((string) $rol), ['coordinador', 'superadministrador'], true)
+        ? to_route('zona')
+        : to_route('bienvenida');
 })->name('login.attempt');
+
+Route::get('/salir', function (Request $request) {
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return to_route('index');
+})->name('logout');
 
 Route::get('/registrarse', function (Request $request) {
     $request->session()->put('registro_iniciado', true);
@@ -136,9 +210,14 @@ Route::post('/certificacion', function (Request $request) {
 
     $request->session()->put('certificacion', $validated);
 
-    return to_route('certificacion')->with('status', 'La certificación se guardó correctamente.');
+    return to_route('documentos')->with('status', 'La certificación se guardó correctamente.');
 })->name('certificacion.guardar');
-Route::match(['get', 'post'], '/zona', fn () => view('zona'))->name('zona');
+
+// Solo Coordinador y Superadministrador
+Route::middleware('rol:coordinador,superadministrador')->group(function () {
+    Route::get('/zona', fn () => view('zona'))->name('zona');
+});
+
 Route::match(['get', 'post'], '/recuperar', fn () => view('recuperar'))->name('recuperar');
 Route::redirect('/editarDatos', '/index')->name('editarDatos');
 Route::redirect('/recContraseña', '/recuperar');
