@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DocumentosController;
+use App\Http\Controllers\SolicitudesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -239,8 +240,14 @@ Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))
 /* ---------- Solo Coordinador y Superadministrador ---------- */
 
 Route::middleware('rol:coordinador,superadministrador')->group(function () {
-    Route::get('/zona', fn () => view('zona'))->name('zona');
+    // Tabla de solicitudes completadas
+    Route::get('/zona', [SolicitudesController::class, 'index'])->name('zona');
+    Route::post('/zona/{solicitud}/guardar', [SolicitudesController::class, 'guardar'])
+        ->whereNumber('solicitud')->name('zona.guardar');
+    Route::get('/zona/{solicitud}/persona', [SolicitudesController::class, 'persona'])
+        ->whereNumber('solicitud')->name('zona.persona');
 
+    // Revisión de documentos
     Route::get('/revision', [DocumentosController::class, 'revisionLista'])->name('revision.index');
     Route::get('/revision/{solicitud}', [DocumentosController::class, 'revisionDetalle'])
         ->whereNumber('solicitud')->name('revision.detalle');
