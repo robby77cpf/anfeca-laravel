@@ -89,9 +89,15 @@ Route::post('/login', function (Request $request) {
 
     $rol = DB::table('rol')->where('rol_id_rol', $usuario->usual_id_rol)->value('rol_nombre');
 
-    return in_array(strtolower((string) $rol), ['coordinador', 'superadministrador'], true)
-        ? to_route('zona')
-        : to_route('bienvenida');
+    if (in_array(strtolower((string) $rol), ['coordinador', 'superadministrador'], true)) {
+        return to_route('zona');
+    }
+
+    // Retoma el flujo donde se quedó
+    $pasosValidos = ['bienvenida', 'formacion', 'certificacion', 'documentos', 'docsRefrendo'];
+    $paso = $usuario->usua_paso_registro ?? 'bienvenida';
+
+    return to_route(in_array($paso, $pasosValidos, true) ? $paso : 'bienvenida');
 })->name('login.attempt');
 
 Route::get('/salir', function (Request $request) {
@@ -194,9 +200,16 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
     ]);
 })->name('datos');
 
-Route::match(['get', 'post'], '/formacion', fn () => view('formacion'))->name('formacion');
+/* ---------- Flujo del solicitante (el middleware 'paso' guarda el último paso alcanzado) ---------- */
 
-Route::get('/certificacion', fn () => view('certificacion'))->name('certificacion');
+Route::match(['get', 'post'], '/formacion', fn () => view('formacion'))
+    ->middleware('paso:formacion')
+    ->name('formacion');
+
+Route::get('/certificacion', fn () => view('certificacion'))
+    ->middleware('paso:certificacion')
+    ->name('certificacion');
+
 Route::post('/certificacion', function (Request $request) {
     $validated = $request->validate([
         'aplica_art_14' => ['required', 'in:si,no'],
@@ -211,16 +224,20 @@ Route::post('/certificacion', function (Request $request) {
     $request->session()->put('certificacion', $validated);
 
     return to_route('documentos')->with('status', 'La certificación se guardó correctamente.');
-})->name('certificacion.guardar');
+})->middleware('paso:certificacion')->name('certificacion.guardar');
 
-// Documentos del solicitante
-Route::get('/documentos', [DocumentosController::class, 'mostrar'])->name('documentos');
+Route::get('/documentos', [DocumentosController::class, 'mostrar'])
+    ->middleware('paso:documentos')
+    ->name('documentos');
 Route::post('/documentos', [DocumentosController::class, 'guardar'])->name('documentos.guardar');
 Route::get('/documentos/ver/{campo}', [DocumentosController::class, 'ver'])->name('documentos.ver');
 
-Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))->name('docsRefrendo');
+Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))
+    ->middleware('paso:docsRefrendo')
+    ->name('docsRefrendo');
 
-// Solo Coordinador y Superadministrador
+/* ---------- Solo Coordinador y Superadministrador ---------- */
+
 Route::middleware('rol:coordinador,superadministrador')->group(function () {
     Route::get('/zona', fn () => view('zona'))->name('zona');
 
