@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DocumentosController;
+use App\Http\Controllers\SolicitudesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -7,7 +9,68 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'login')->name('home');
 Route::view('/index', 'login')->name('index');
-Route::view('/bienvenida', 'bienvenida')->name('bienvenida');
+
+Route::get('/bienvenida', function (Request $request) {
+    $usuarioId = $request->session()->get('usuario_id');
+
+    // Si no hay sesión iniciada, regresa al login
+    if (! $usuarioId) {
+        return to_route('index');
+    }
+
+    $persona = DB::table('usuario')
+        ->join('persona', 'persona.pers_id_persona', '=', 'usuario.usua_id_persona')
+        ->join('domicilio', 'domicilio.domi_id_domicilio', '=', 'persona.pers_id_domicilio')
+        ->join('colonia', 'colonia.colo_id_colonia', '=', 'domicilio.domi_id_colonia')
+        ->join('alcaldia', 'alcaldia.alca_id_alcaldia', '=', 'domicilio.domi_id_alcaldia')
+        ->join('estado', 'estado.esta_id_estado', '=', 'domicilio.domi_id_estado')
+        ->where('usuario.usua_id_usuario', $usuarioId)
+        ->select(
+            'persona.*',
+            'domicilio.domi_calle',
+            'domicilio.domi_numero_exterior',
+            'domicilio.domi_numero_interior',
+            'domicilio.domi_codigo_postal',
+            'colonia.colo_nombre',
+            'alcaldia.alca_nombre',
+            'estado.esta_nombre'
+        )
+        ->first();
+
+    if (! $persona) {
+        // Usuarios sin persona (coordinador / superadministrador) van a su pantalla
+        $rol = DB::table('usuario')
+            ->join('rol', 'rol.rol_id_rol', '=', 'usuario.usual_id_rol')
+            ->where('usuario.usua_id_usuario', $usuarioId)
+            ->value('rol.rol_nombre');
+
+        if ($rol && in_array(strtolower($rol), ['coordinador', 'superadministrador'], true)) {
+            return to_route('zona');
+        }
+
+        // El usuario ya no existe en la base: cierra la sesión
+        $request->session()->forget('usuario_id');
+
+        return to_route('index');
+    }
+
+    // Los teléfonos se guardaron en orden: primero particular, luego celular
+    $telefonos = DB::table('contacto')
+        ->where('cont_id_persona', $persona->pers_id_persona)
+        ->orderByRaw('ctid')
+        ->pluck('cont_contacto');
+
+    $nombreCompleto = trim(
+        $persona->pers_nombre.' '.$persona->pers_apellido_paterno.' '.($persona->pers_apellido_materno ?? '')
+    );
+
+    return view('bienvenida', [
+        'persona' => $persona,
+        'nombreCompleto' => $nombreCompleto,
+        'telParticular' => $telefonos[0] ?? '',
+        'telCelular' => $telefonos[1] ?? '',
+    ]);
+})->name('bienvenida');
 
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
@@ -21,10 +84,29 @@ Route::post('/login', function (Request $request) {
         return back()->withErrors(['usuario' => 'Usuario o contraseña incorrectos.'])->onlyInput('usuario');
     }
 
+    $request->session()->regenerate();
     $request->session()->put('usuario_id', $usuario->usua_id_usuario);
+    $request->session()->put('usuario_nombre', $usuario->usua_nombre);
 
-    return to_route('bienvenida');
+    $rol = DB::table('rol')->where('rol_id_rol', $usuario->usual_id_rol)->value('rol_nombre');
+
+    if (in_array(strtolower((string) $rol), ['coordinador', 'superadministrador'], true)) {
+        return to_route('zona');
+    }
+
+    // Retoma el flujo donde se quedó
+    $pasosValidos = ['bienvenida', 'formacion', 'certificacion', 'documentos', 'docsRefrendo'];
+    $paso = $usuario->usua_paso_registro ?? 'bienvenida';
+
+    return to_route(in_array($paso, $pasosValidos, true) ? $paso : 'bienvenida');
 })->name('login.attempt');
+
+Route::get('/salir', function (Request $request) {
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return to_route('index');
+})->name('logout');
 
 Route::get('/registrarse', function (Request $request) {
     $request->session()->put('registro_iniciado', true);
@@ -119,10 +201,16 @@ Route::match(['get', 'post'], '/datos', function (Request $request) {
     ]);
 })->name('datos');
 
-Route::match(['get', 'post'], '/formacion', fn () => view('formacion'))->name('formacion');
-Route::match(['get', 'post'], '/documentos', fn () => view('documentos'))->name('documentos');
-Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))->name('docsRefrendo');
-Route::get('/certificacion', fn () => view('certificacion'))->name('certificacion');
+/* ---------- Flujo del solicitante (el middleware 'paso' guarda el último paso alcanzado) ---------- */
+
+Route::match(['get', 'post'], '/formacion', fn () => view('formacion'))
+    ->middleware('paso:formacion')
+    ->name('formacion');
+
+Route::get('/certificacion', fn () => view('certificacion'))
+    ->middleware('paso:certificacion')
+    ->name('certificacion');
+
 Route::post('/certificacion', function (Request $request) {
     $validated = $request->validate([
         'aplica_art_14' => ['required', 'in:si,no'],
@@ -136,9 +224,37 @@ Route::post('/certificacion', function (Request $request) {
 
     $request->session()->put('certificacion', $validated);
 
-    return to_route('certificacion')->with('status', 'La certificación se guardó correctamente.');
-})->name('certificacion.guardar');
-Route::match(['get', 'post'], '/zona', fn () => view('zona'))->name('zona');
+    return to_route('documentos')->with('status', 'La certificación se guardó correctamente.');
+})->middleware('paso:certificacion')->name('certificacion.guardar');
+
+Route::get('/documentos', [DocumentosController::class, 'mostrar'])
+    ->middleware('paso:documentos')
+    ->name('documentos');
+Route::post('/documentos', [DocumentosController::class, 'guardar'])->name('documentos.guardar');
+Route::get('/documentos/ver/{campo}', [DocumentosController::class, 'ver'])->name('documentos.ver');
+
+Route::match(['get', 'post'], '/docs-refrendo', fn () => view('docsRefrendo'))
+    ->middleware('paso:docsRefrendo')
+    ->name('docsRefrendo');
+
+/* ---------- Solo Coordinador y Superadministrador ---------- */
+
+Route::middleware('rol:coordinador,superadministrador')->group(function () {
+    // Tabla de solicitudes completadas
+    Route::get('/zona', [SolicitudesController::class, 'index'])->name('zona');
+    Route::post('/zona/{solicitud}/guardar', [SolicitudesController::class, 'guardar'])
+        ->whereNumber('solicitud')->name('zona.guardar');
+    Route::get('/zona/{solicitud}/persona', [SolicitudesController::class, 'persona'])
+        ->whereNumber('solicitud')->name('zona.persona');
+
+    // Revisión de documentos
+    Route::get('/revision', [DocumentosController::class, 'revisionLista'])->name('revision.index');
+    Route::get('/revision/{solicitud}', [DocumentosController::class, 'revisionDetalle'])
+        ->whereNumber('solicitud')->name('revision.detalle');
+    Route::get('/revision/{solicitud}/{campo}', [DocumentosController::class, 'revisionVer'])
+        ->whereNumber('solicitud')->name('revision.ver');
+});
+
 Route::match(['get', 'post'], '/recuperar', fn () => view('recuperar'))->name('recuperar');
 Route::redirect('/editarDatos', '/index')->name('editarDatos');
 Route::redirect('/recContraseña', '/recuperar');
