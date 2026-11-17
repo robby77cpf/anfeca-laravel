@@ -4,7 +4,7 @@
         <a href="{{ route('index') }}" aria-label="Ir a la página principal">
             <img src="{{ asset('img/ANFECPNG.png') }}" alt="Logo Izquierdo" height="100" style="cursor: pointer;">
         </a>
-        <h1 class="header-title">REGISTRO AL SISTEMA DE<br>CERTIFICACIÓN DE LA ANFECA</h1>
+        <h1 class="header-title">SISTEMA DE CERTIFICACIÓN<br> DE LA ANFECA</h1>
     </div>
     <div class="header-right">
         <h2 class="header-subtitle">Coordinación Nacional de<br>Certificación Académica</h2>

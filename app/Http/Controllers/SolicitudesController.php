@@ -15,25 +15,31 @@ class SolicitudesController extends Controller
             ->leftJoin('institucion as i', 'i.inst_id_institucion', '=', 'p.pers_id_institucion')
             ->leftJoin('zona as z', 'z.zona_id_zona', '=', 'i.inst_id_zona')
             ->leftJoin('area_certificacion as a', 'a.area_id_area_certificacion', '=', 's.soan_id_area_certificacion')
-            ->where('s.soan_estatus', '<>', 'Borrador')
+            ->leftJoin('articulo_certificacion as ar', 'ar.arce_id_articulo', '=', 's.soan_id_articulo')
             ->orderBy('s.soan_id_solicitud_anfeca')
             ->select(
                 's.soan_id_solicitud_anfeca',
+                's.soan_estatus',
                 's.soan_folio',
                 's.soan_evaluacion',
                 's.soan_aprobado',
                 's.soan_id_refrendo_certificacion',
+                's.soan_id_articulo',
                 's.soan_nombre_certificacion',
                 'p.pers_nombre',
                 'p.pers_apellido_paterno',
                 'p.pers_apellido_materno',
                 'a.area_descripcion',
                 'i.inst_descripcion',
-                'z.zona_siglas'
+                'z.zona_id_zona',
+                'z.zona_siglas',
+                'ar.*'
             )
             ->get();
 
-        return view('zona', ['solicitudes' => $solicitudes]);
+        $zonas = DB::table('zona')->orderBy('zona_id_zona')->get();
+
+        return view('zona', ['solicitudes' => $solicitudes, 'zonas' => $zonas]);
     }
 
     public function guardar(Request $request, int $solicitud)
