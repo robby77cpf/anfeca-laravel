@@ -48,7 +48,7 @@ class SolicitudesController extends Controller
 
         $zonas = DB::table('zona')->orderBy('zona_id_zona')->get();
 
-        return view('zona', ['solicitudes' => $solicitudes, 'zonas' => $zonas]);
+        return view('zona', ['solicitudes' => $solicitudes, 'zonas' => $zonas, 'zonaUsuario' => $zonaUsuario]);
     }
 
     /** Un coordinador solo puede tocar solicitudes de su zona. */
