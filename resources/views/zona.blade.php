@@ -195,7 +195,7 @@
                 </div>
             </div>
 
-            <button type="button" class="btn-top">Reportes</button>
+            <a href="{{ route('acta') }}" class="btn-top">Reportes</a>
 
             <a href="{{ route('revision.index') }}" class="btn-top">Documentos</a>
 
@@ -209,7 +209,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('acta') }}" class="btn-top">Acta</a>
+            <button type="button" class="btn-top">Acta</button>
         </div>
 
         <div class="user-actions-right">
