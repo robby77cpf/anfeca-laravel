@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ActaExcel;
+use App\Services\ZonaUsuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -98,6 +99,15 @@ class ActaController extends Controller
                 'url_docs' => $s->doan_url_documentos_probatorios,
                 'tipo_certificacion' => 'ANFECA',
             ];
+        }
+
+        // Coordinador de zona: solo su zona, pero el No. de Certificado continúa
+        // después de los aprobados de las zonas anteriores.
+        $zonaUsuario = ZonaUsuario::actual();
+        if ($zonaUsuario) {
+            $previos = count(array_filter($filas, fn ($f) => $f['concluido'] && (int) $f['zona'] < $zonaUsuario));
+            $filas = array_values(array_filter($filas, fn ($f) => (int) $f['zona'] === $zonaUsuario));
+            $inicio += $previos;
         }
 
         $nombre = 'Reporte_'.now()->format('dmY-His').'.xls';

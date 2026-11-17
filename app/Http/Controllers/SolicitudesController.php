@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ZonaUsuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -37,13 +38,30 @@ class SolicitudesController extends Controller
             )
             ->get();
 
+        // Coordinador de zona: solo ve las solicitudes de su zona (superadministrador ve todas)
+        $zonaUsuario = ZonaUsuario::actual();
+        if ($zonaUsuario) {
+            $solicitudes = $solicitudes
+                ->filter(fn ($s) => ZonaUsuario::numero($s->zona_siglas, $s->zona_id_zona) === $zonaUsuario)
+                ->values();
+        }
+
         $zonas = DB::table('zona')->orderBy('zona_id_zona')->get();
 
         return view('zona', ['solicitudes' => $solicitudes, 'zonas' => $zonas]);
     }
 
+    /** Un coordinador solo puede tocar solicitudes de su zona. */
+    private function autorizarZona(int $solicitud): void
+    {
+        $zonaUsuario = ZonaUsuario::actual();
+        abort_if($zonaUsuario && ZonaUsuario::deSolicitud($solicitud) !== $zonaUsuario, 403);
+    }
+
     public function guardar(Request $request, int $solicitud)
     {
+        $this->autorizarZona($solicitud);
+
         abort_unless(
             DB::table('solicitud_anfeca')->where('soan_id_solicitud_anfeca', $solicitud)->exists(),
             404
@@ -83,6 +101,8 @@ class SolicitudesController extends Controller
 
     public function persona(int $solicitud)
     {
+        $this->autorizarZona($solicitud);
+
         $p = DB::table('solicitud_anfeca as s')
             ->join('persona as p', 'p.pers_id_persona', '=', 's.soan_id_persona')
             ->leftJoin('domicilio as d', 'd.domi_id_domicilio', '=', 'p.pers_id_domicilio')
