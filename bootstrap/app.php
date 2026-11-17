@@ -12,12 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-    $middleware->alias([
-        'rol' => \App\Http\Middleware\RolRequerido::class,
-    ]);
-})
+        $middleware->alias([
+            'rol'  => \App\Http\Middleware\RolRequerido::class,
+            'paso' => \App\Http\Middleware\RegistroPaso::class,
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson()
         );
     })->create();

@@ -8,53 +8,37 @@
 </head>
 <body>
 
-    <!-- Encabezado -->
 @include('partials.header')
 
-    <!-- Contenido Principal -->
     <main class="registro-main">
-        
-        <!-- Insignia del Usuario -->
-        <!-- <div class="user-badge-container">
-            <div class="user-badge"> -->
-                <!-- Icono de Edición -->
-                <!-- <svg viewBox="0 0 24 24" fill="none" stroke="#173459" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg> -->
-                <!-- Icono de Usuario -->
-                <!-- <svg viewBox="0 0 24 24" width="22" height="22">
-                    <circle cx="12" cy="12" r="11" fill="#e0e0e0" stroke="#173459" stroke-width="1"/>
-                    <circle cx="12" cy="9" r="4" fill="white"/>
-                    <path d="M5 20c0-4 4-7 7-7s7 3 7 7" fill="white"/>
-                </svg>
-                Usuario: Victor Godínez Paredes
-            </div>
-        </div> -->
 
-        <!-- Formulario Principal -->
-        <form class="registro-form" action="" method="POST">
-@csrf
+        <form class="registro-form" action="{{ route('documentos.guardar') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            @if (session('status'))
+                <p style="color:#1a7f37; font-weight:bold;">{{ session('status') }}</p>
+            @endif
+
+            @if ($errors->any())
+                <ul style="color:#b00020;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            @endif
+
             <div class="form-columns docs-columns">
-                
+
                 <!-- Columna 1: Documentos Básicos -->
                 <div class="form-column basicos-col">
                     <h3 class="col-header">Documentos Básicos</h3>
-                    
-                    <div class="doc-list">
-                        <!-- Iteración de Documentos (Puedes automatizar esto con un array en PHP si lo deseas) -->
-                        <?php 
-                        $documentosBasicos = [
-                            "Título de Licenciatura",
-                            "Constancia de Antigüedad",
-                            "Cedula de Licenciatura",
-                            "Comprobante de Pago",
-                            "Título de último grado",
-                            "Cédula de último grado"
-                        ];
 
-                        foreach ($documentosBasicos as $doc) {
-                        ?>
+                    <div class="doc-list">
+                        @foreach ($archivos as $campo => $info)
+                            @php
+                                $guardado = $docs && ! empty($docs->{$info[0]});
+                                $textoInicial = $guardado ? 'Guardado · Reemplazar' : 'Añadir';
+                            @endphp
                             <div class="doc-item">
                                 <div class="doc-icon-text">
                                     <svg viewBox="0 0 24 28" stroke-linecap="round" stroke-linejoin="round">
@@ -64,16 +48,20 @@
                                         <line x1="6" y1="18" x2="18" y2="18"></line>
                                         <line x1="6" y1="22" x2="14" y2="22"></line>
                                     </svg>
-                                    <span class="doc-text"><?php echo $doc; ?></span>
+                                    <span class="doc-text">{{ $info[1] }}</span>
                                 </div>
-                                <label class="btn-añadir">
-                                    <input type="file" name="documentos[]" accept="application/pdf,.pdf" hidden>
-                                    <span class="btn-text">Añadir</span>
+
+                                @if ($guardado)
+                                    <a href="{{ route('documentos.ver', $campo) }}" target="_blank" rel="noopener">Ver</a>
+                                @endif
+
+                                <label class="btn-añadir {{ $guardado ? 'btn-cargado' : '' }}"
+                                       data-guardado="{{ $guardado ? '1' : '0' }}">
+                                    <input type="file" name="{{ $campo }}" accept="application/pdf,.pdf" hidden>
+                                    <span class="btn-text">{{ $textoInicial }}</span>
                                 </label>
                             </div>
-                        <?php 
-                        } 
-                        ?>
+                        @endforeach
                     </div>
                 </div>
 
@@ -82,15 +70,17 @@
                     <h3 class="col-header">Documentos Probatorios</h3>
                     <div class="link-input-group">
                         <label for="drive-link">Link</label>
-                        <input type="url" id="drive-link" name="drive-link" placeholder="linkdeejemplocarpetadrive.com">
+                        <input type="url" id="drive-link" name="drive_link"
+                               value="{{ old('drive_link', $docs->doan_url_documentos_probatorios ?? '') }}"
+                               placeholder="https://drive.google.com/...">
                     </div>
                 </div>
             </div>
 
             <!-- Botones de Navegación -->
             <div class="form-actions">
-                <button type="button" class="btn-registro" onclick="window.location.href='/formacion'">Anterior</button>
-                <button type="submit" class="btn-registro">Siguiente</button>
+                <button type="button" class="btn-registro" onclick="window.location.href='{{ route('formacion') }}'">Anterior</button>
+                <button type="submit" class="btn-registro">Guardar documentos</button>
             </div>
         </form>
 
@@ -106,6 +96,17 @@
             input.addEventListener('change', function () {
                 const label = this.closest('.btn-añadir');
                 const text = label.querySelector('.btn-text');
+                const yaGuardado = label.dataset.guardado === '1';
+
+                const restaurar = function () {
+                    if (yaGuardado) {
+                        label.classList.add('btn-cargado');
+                        text.textContent = 'Guardado · Reemplazar';
+                    } else {
+                        label.classList.remove('btn-cargado');
+                        text.textContent = 'Añadir';
+                    }
+                };
 
                 if (this.files && this.files.length > 0) {
                     const file = this.files[0];
@@ -115,14 +116,12 @@
                         label.classList.add('btn-cargado');
                         text.textContent = 'Carga Completa';
                     } else {
-                        label.classList.remove('btn-cargado');
-                        text.textContent = 'Añadir';
                         this.value = '';
+                        restaurar();
                         alert('Solo se permiten archivos PDF.');
                     }
                 } else {
-                    label.classList.remove('btn-cargado');
-                    text.textContent = 'Añadir';
+                    restaurar();
                 }
             });
         });
