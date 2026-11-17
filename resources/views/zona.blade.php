@@ -209,7 +209,7 @@
                 </div>
             </div>
 
-            <button type="button" class="btn-top">Acta</button>
+            <a href="{{ route('acta') }}" class="btn-top">Acta</a>
         </div>
 
         <div class="user-actions-right">
