@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< HEAD
 use Carbon\Carbon;
-=======
 use App\Services\ZonaUsuario;
->>>>>>> e608e7b20ffb3a298512afa71c74a0151f239c36
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
