@@ -150,6 +150,8 @@ class SolicitudesController extends Controller
 
     public function dictamen(int $solicitud)
     {
+        $this->autorizarZona($solicitud);
+
         $s = DB::table('solicitud_anfeca as s')
             ->join('persona as p', 'p.pers_id_persona', '=', 's.soan_id_persona')
             ->leftJoin('institucion as i', 'i.inst_id_institucion', '=', 'p.pers_id_institucion')
@@ -203,16 +205,21 @@ class SolicitudesController extends Controller
         $pdfPath  = "{$tempDir}/dictamen_{$solicitud}.pdf";
         $template->saveAs($docxPath);
 
-        exec(
-            'libreoffice --headless --convert-to pdf '
+        $comando = "HOME=" . escapeshellarg($tempDir)
+            . " flatpak run org.libreoffice.LibreOffice --headless --convert-to pdf "
             . escapeshellarg($docxPath)
-            . ' --outdir '
+            . " --outdir "
             . escapeshellarg($tempDir)
-        );
+            . " 2>&1";
+
+        exec($comando, $salida, $codigo);
 
         @unlink($docxPath);
 
-        abort_unless(file_exists($pdfPath), 500, 'No se pudo generar el PDF.');
+        if (!file_exists($pdfPath)) {
+            \Log::error('Error convirtiendo DOCX a PDF', ['codigo' => $codigo, 'salida' => $salida]);
+            abort(500, 'No se pudo generar el PDF.');
+        }
 
         return response()->file($pdfPath, [
             'Content-Type' => 'application/pdf',
