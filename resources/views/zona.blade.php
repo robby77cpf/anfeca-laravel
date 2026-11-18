@@ -55,7 +55,7 @@
 .zona-titulo-container { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
 .sub-zona { background: rgba(255, 255, 255, .22); color: #fff; font-weight: 700; font-size: 13px;
             padding: 5px 14px; border-radius: 999px; letter-spacing: .4px; }
-.titulo-solicitudes { margin: 0; color: #fff; font-size: 26px; font-weight: 700;
+.titulo-solicitudes { margin: 0; color: #fff; font-size: 20px; font-weight: 700;
                       letter-spacing: .2px; text-shadow: 0 2px 6px rgba(90, 20, 30, .25); }
 
 .btn-guardar { border: 0; cursor: pointer; color: #fff; font-weight: 700; font-size: 16px;
@@ -183,7 +183,7 @@
     <!-- Barra Superior de Navegación y Acciones -->
     <div class="nav-bar-superior">
         <div class="menu-botones-left">
-            <div class="dropdown-zona" id="dropdownZona">
+            <div class="dropdown-zona" id="dropdownZona" @if($zonaUsuario ?? null) style="display:none" @endif>
                 <button type="button" class="btn-top" onclick="toggleMenu('menuZona')">
                     Zona <span class="arrow">&#9660;</span>
                 </button>
@@ -195,7 +195,7 @@
                 </div>
             </div>
 
-            <button type="button" class="btn-top">Reportes</button>
+            <a href="{{ route('acta') }}" class="btn-top">Reportes</a>
 
             <a href="{{ route('revision.index') }}" class="btn-top">Documentos</a>
 
@@ -237,7 +237,7 @@
 
         <div class="header-seccion">
             <div class="zona-titulo-container">
-                <span class="sub-zona" id="subZona">Todas las zonas</span>
+                <span class="sub-zona" id="subZona">{{ ($zonaUsuario ?? null) ? "Zona ".$zonaUsuario : "Todas las zonas" }}</span>
                 <h2 class="titulo-solicitudes" id="tituloSolicitudes">Solicitudes Completadas</h2>
             </div>
 
@@ -265,7 +265,7 @@
                 </select>
             </div>
 
-            <div class="filtro">
+            <div class="filtro" @if($zonaUsuario ?? null) style="display:none" @endif>
                 <label for="filtroZona">Zona</label>
                 <select id="filtroZona">
                     <option value="">Todas las zonas</option>
@@ -510,6 +510,7 @@ const fProceso = document.getElementById('filtroProceso');
 const fZona = document.getElementById('filtroZona');
 const fTipo = document.getElementById('filtroTipo');
 const sinResultados = document.getElementById('filaSinResultados');
+const ZONA_FIJA = @json($zonaUsuario ?? null);
 const subZona = document.getElementById('subZona');
 const titulo = document.getElementById('tituloSolicitudes');
 
@@ -536,7 +537,7 @@ function aplicarFiltros() {
     sinResultados.style.display = visibles === 0 ? '' : 'none';
 
     // Encabezado dinámico
-    subZona.textContent = zona === '' ? 'Todas las zonas' : fZona.options[fZona.selectedIndex].text;
+    subZona.textContent = ZONA_FIJA ? "Zona " + ZONA_FIJA : zona === '' ? 'Todas las zonas' : fZona.options[fZona.selectedIndex].text;
     titulo.textContent = proceso === 'completo' ? 'Solicitudes Completadas'
                        : proceso === 'incompleto' ? 'Solicitudes Incompletas'
                        : 'Todas las solicitudes';
