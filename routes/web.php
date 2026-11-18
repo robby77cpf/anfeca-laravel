@@ -258,3 +258,5 @@ Route::middleware('rol:coordinador,superadministrador')->group(function () {
 Route::match(['get', 'post'], '/recuperar', fn () => view('recuperar'))->name('recuperar');
 Route::redirect('/editarDatos', '/index')->name('editarDatos');
 Route::redirect('/recContraseña', '/recuperar');
+Route::get('/zona/{solicitud}/dictamen', [SolicitudesController::class, 'dictamen'])
+    ->name('solicitudes.dictamen');

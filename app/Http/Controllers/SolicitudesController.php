@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class SolicitudesController extends Controller
 {
@@ -125,4 +127,77 @@ class SolicitudesController extends Controller
             'Código postal' => $p->domi_codigo_postal,
         ]);
     }
+
+    public function dictamen(int $solicitud)
+    {
+        $s = DB::table('solicitud_anfeca as s')
+            ->join('persona as p', 'p.pers_id_persona', '=', 's.soan_id_persona')
+            ->leftJoin('institucion as i', 'i.inst_id_institucion', '=', 'p.pers_id_institucion')
+            ->leftJoin('zona as z', 'z.zona_id_zona', '=', 'i.inst_id_zona')
+            ->leftJoin('area_certificacion as a', 'a.area_id_area_certificacion', '=', 's.soan_id_area_certificacion')
+            ->where('s.soan_id_solicitud_anfeca', $solicitud)
+            ->select(
+                's.soan_id_solicitud_anfeca',
+                's.soan_folio',
+                's.soan_evaluacion',
+                's.soan_aprobado',
+                's.soan_nombre_certificacion',
+                'p.pers_nombre',
+                'p.pers_apellido_paterno',
+                'p.pers_apellido_materno',
+                'a.area_descripcion',
+                'i.inst_descripcion',
+                'z.zona_siglas'
+            )
+            ->first();
+
+        abort_unless($s, 404);
+
+        $nombre = trim($s->pers_nombre . ' ' . $s->pers_apellido_paterno . ' ' . ($s->pers_apellido_materno ?? ''));
+        $certificacion = $s->area_descripcion ?? $s->soan_nombre_certificacion ?? '—';
+
+        Carbon::setLocale('es');
+        $fecha = Carbon::now();
+
+        // 1. Cargar la plantilla Word y reemplazar marcadores
+        $template = new TemplateProcessor(storage_path('app/plantillas/DICTAMEN_CERTIF_ACADE_PLANTILLA.docx'));
+        $template->setValue('folio', $s->soan_folio ?: 'S/F');
+        $template->setValue('nombre', $nombre);
+        $template->setValue('institucion', $s->inst_descripcion ?? '—');
+        $template->setValue('certificacion', $certificacion);
+        $template->setValue('zona', $s->zona_siglas ?? '—');
+        $template->setValue('resultado', $s->soan_aprobado ? 'APROBADA' : 'NO APROBADA');
+        $template->setValue('evaluacion', $s->soan_evaluacion ?? '0');
+        $template->setValue('dia', $fecha->day);
+        $template->setValue('mes', $fecha->translatedFormat('F'));
+        $template->setValue('anio', $fecha->year);
+        $template->setValue('coordinador_regional', 'Coordinación Regional de Certificación Académica');
+
+        // 2. Guardar Word temporal y convertir a PDF
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $docxPath = "{$tempDir}/dictamen_{$solicitud}.docx";
+        $pdfPath  = "{$tempDir}/dictamen_{$solicitud}.pdf";
+        $template->saveAs($docxPath);
+
+        exec(
+            'libreoffice --headless --convert-to pdf '
+            . escapeshellarg($docxPath)
+            . ' --outdir '
+            . escapeshellarg($tempDir)
+        );
+
+        @unlink($docxPath);
+
+        abort_unless(file_exists($pdfPath), 500, 'No se pudo generar el PDF.');
+
+        return response()->file($pdfPath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="Dictamen_' . ($s->soan_folio ?: $solicitud) . '.pdf"',
+        ])->deleteFileAfterSend(true);
+    }
+
 }

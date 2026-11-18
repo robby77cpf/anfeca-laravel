@@ -372,7 +372,7 @@
                                 </label>
                             </td>
                             <td>
-                                <a href="#" class="icon-doc-pdf" title="Ver Dictamen">
+                                <a href="{{ route('solicitudes.dictamen', $s->soan_id_solicitud_anfeca) }}" target="_blank" class="icon-doc-pdf" title="Ver Dictamen">
                                     <svg width="22" height="26" viewBox="0 0 24 28" fill="none">
                                         <path d="M4 0C2.34 0 1 1.34 1 3V25C1 26.66 2.34 28 4 28H20C21.66 28 23 26.66 23 25V8L15 0H4Z" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
                                         <path d="M15 0V8H23" stroke="#333333" stroke-width="1.5"/>
