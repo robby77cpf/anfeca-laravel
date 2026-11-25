@@ -464,7 +464,9 @@
     <a href="#" id="linkDictamenRefrendo14NoFav" target="_blank">
         Dictamen de resultado no favorable para refrendo por Artículo 14
     </a>
-    <span class="pendiente" title="Función en desarrollo">Dictamen de certificación académica no favorable (Próximamente)</span>
+    <a href="#" id="linkDictameNoFavorable" target="_blank">
+        Dictamen de certificación académica no favorable
+    </a>
 </div>
 
 @include('partials.footer')
@@ -666,6 +668,7 @@ const linkImprocedencia = document.getElementById('linkDictamenImprocedencia');
 const linkFavorablePrimera = document.getElementById('linkDictamenFavorablePrimera');
 const linkRefrendo14 = document.getElementById('linkDictamenRefrendo14');
 const linkRefrendo14NoFav = document.getElementById('linkDictamenRefrendo14NoFav');
+const linkNoFavorable = document.getElementById('linkDictameNoFavorable');
 
 document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
     btn.addEventListener('click', e => {
