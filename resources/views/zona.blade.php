@@ -678,6 +678,7 @@ document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
         linkFavorablePrimera.href = `${URL_GUARDAR}/${id}/dictamen/favorable-primera`;
         linkRefrendo14.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14`;
         linkRefrendo14NoFav.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14-no-fav`;
+        linkNoFavorable.href = `${URL_GUARDAR}/${id}/dictamen/no-favorable`;
 
         const rect = btn.getBoundingClientRect();
         menuDictamen.classList.add('show');
