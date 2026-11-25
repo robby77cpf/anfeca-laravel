@@ -668,7 +668,7 @@ const linkImprocedencia = document.getElementById('linkDictamenImprocedencia');
 const linkFavorablePrimera = document.getElementById('linkDictamenFavorablePrimera');
 const linkRefrendo14 = document.getElementById('linkDictamenRefrendo14');
 const linkRefrendo14NoFav = document.getElementById('linkDictamenRefrendo14NoFav');
-const linkNoFavorable = document.getElementById('linkDictameNoFavorable');
+const linkNoFavorable = document.getElementById('linkDictamenNoFavorable');
 
 document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
     btn.addEventListener('click', e => {
