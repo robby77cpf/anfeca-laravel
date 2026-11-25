@@ -452,13 +452,15 @@
 
 <!-- Menú desplegable flotante de Dictámenes -->
 <div class="menu-dictamen-flotante" id="menuDictamenFlotante">
+    <a href="#" id="linkDictamenImprocedencia" target="_blank">
+        Dictamen de improcedencia
+    </a>
     <a href="#" id="linkDictamenFavorablePrimera" target="_blank">
         Dictamen de certificación académica favorable (primera vez)
     </a>
     <a href="#" id="linkDictamenRefrendo14" target="_blank">
         Dictamen de certificación académica por refrendo Artículo 14
     </a>
-    <span class="pendiente" title="Función en desarrollo">Dictamen de improcedencia (Próximamente)</span>
     <span class="pendiente" title="Función en desarrollo">Dictamen de certificación académica no favorable (Próximamente)</span>
     <span class="pendiente" title="Función en desarrollo">Dictamen de resultado no favorable para refrendo por Artículo 14 (Próximamente)</span>
 </div>
@@ -658,6 +660,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classL
 
 /* ---------- Menú desplegable de Dictámenes ---------- */
 const menuDictamen = document.getElementById('menuDictamenFlotante');
+const linkImprocedencia = document.getElementById('linkDictamenImprocedencia');
 const linkFavorablePrimera = document.getElementById('linkDictamenFavorablePrimera');
 const linkRefrendo14 = document.getElementById('linkDictamenRefrendo14');
 
@@ -665,13 +668,13 @@ document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
     btn.addEventListener('click', e => {
         e.stopPropagation();
         const id = btn.dataset.id;
+        linkImprocedencia.href = `${URL_GUARDAR}/${id}/dictamen/improcedencia`;
         linkFavorablePrimera.href = `${URL_GUARDAR}/${id}/dictamen/favorable-primera`;
         linkRefrendo14.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14`;
 
         const rect = btn.getBoundingClientRect();
         menuDictamen.classList.add('show');
 
-        // Posicionar a la izquierda del botón para que no se salga de la pantalla
         const anchoMenu = menuDictamen.offsetWidth;
         const left = Math.max(12, rect.right - anchoMenu);
         const top = Math.min(window.innerHeight - menuDictamen.offsetHeight - 12, rect.bottom + 6);

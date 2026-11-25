@@ -148,7 +148,7 @@ class SolicitudesController extends Controller
         ]);
     }
 
-    public function dictamen(int $solicitud, string $tipo)
+    public function dictamen(Request $request, int $solicitud, string $tipo)
     {
         $this->autorizarZona($solicitud);
 
@@ -179,12 +179,12 @@ class SolicitudesController extends Controller
 
         // Seleccionar plantilla según el tipo elegido en el menú
         $archivoPlantilla = match ($tipo) {
-            'refrendo-art14' => 'DICTAMEN_REFRENDO_ART14_PLANTILLA.docx',
-            // Próximos dictámenes (solo descomenta cuando subas sus .docx):
-            'favorable-primera'       => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
-            // 'improcedencia'           => 'DICTAMEN_IMPROCEDENCIA_PLANTILLA.docx',
-            // 'no-favorable'            => 'DICTAMEN_NO_FAVORABLE_PLANTILLA.docx',
-            // 'refrendo-art14-no-fav'   => 'DICTAMEN_REFRENDO_ART14_NO_FAV_PLANTILLA.docx',
+            'favorable-primera' => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
+            'refrendo-art14'    => 'DICTAMEN_REFRENDO_ART14_PLANTILLA.docx',
+            'improcedencia'     => 'DICTAMEN_IMPROCEDENCIA_PLANTILLA.docx',
+            // Próximos dictámenes:
+            // 'no-favorable'          => 'DICTAMEN_NO_FAVORABLE_PLANTILLA.docx',
+            // 'refrendo-art14-no-fav' => 'DICTAMEN_REFRENDO_ART14_NO_FAV_PLANTILLA.docx',
             default => null,
         };
 
@@ -192,8 +192,6 @@ class SolicitudesController extends Controller
 
         $nombre = trim($s->pers_nombre . ' ' . $s->pers_apellido_paterno . ' ' . ($s->pers_apellido_materno ?? ''));
         $certificacion = $s->area_descripcion ?? $s->soan_nombre_certificacion ?? '—';
-
-        // Extraer numeral si existe una columna en articulo_certificacion (ajusta el nombre si tu columna se llama distinto, ej. $s->arce_numeral)
         $numeral = $s->arce_numeral ?? $s->arce_fraccion ?? '—';
 
         Carbon::setLocale('es');
@@ -206,13 +204,19 @@ class SolicitudesController extends Controller
         $template->setValue('certificacion', $certificacion);
         $template->setValue('zona', $s->zona_siglas ?? '—');
         $template->setValue('resultado', $s->soan_aprobado ? 'APROBADA' : 'NO APROBADA');
+        $template->setValue('evaluacion', $s->soan_evaluacion ?? '0');
         $template->setValue('numeral', $numeral);
         $template->setValue('articulo', '14');
         $template->setValue('dia', $fecha->day);
         $template->setValue('mes', $fecha->translatedFormat('F'));
         $template->setValue('anio', $fecha->year);
         $template->setValue('coordinador_regional', 'Coordinación Regional de Certificación Académica');
-        $template->setValue('evaluacion', $s->soan_evaluacion ?? '0');
+
+        // Casillas de observaciones para Dictamen de improcedencia (ej. ?obs[]=1&obs[]=3)
+        $obsMarcadas = array_map('intval', (array) $request->query('obs', []));
+        for ($n = 1; $n <= 7; $n++) {
+            $template->setValue("obs_{$n}", in_array($n, $obsMarcadas, true) ? ' X ' : '   ');
+        }
 
         $tempDir = storage_path('app/temp');
         if (!is_dir($tempDir)) {
