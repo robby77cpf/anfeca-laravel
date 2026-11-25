@@ -246,7 +246,8 @@ Route::middleware('rol:coordinador,superadministrador')->group(function () {
         ->whereNumber('solicitud')->name('zona.guardar');
     Route::get('/zona/{solicitud}/persona', [SolicitudesController::class, 'persona'])
         ->whereNumber('solicitud')->name('zona.persona');
-    Route::get('/acta', [\App\Http\Controllers\ActaController::class, 'descargar'])->name('acta');
+    Route::get('/zona/{solicitud}/dictamen/{tipo}', [SolicitudesController::class, 'dictamen'])
+        ->whereNumber('solicitud')->name('solicitudes.dictamen');
 
     // Revisión de documentos
     Route::get('/revision', [DocumentosController::class, 'revisionLista'])->name('revision.index');

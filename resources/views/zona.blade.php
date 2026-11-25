@@ -450,6 +450,19 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Menú desplegable flotante de Dictámenes -->
+<div class="menu-dictamen-flotante" id="menuDictamenFlotante">
+    <a href="#" id="linkDictamenFavorablePrimera" target="_blank">
+        Dictamen de certificación académica favorable (primera vez)
+    </a>
+    <a href="#" id="linkDictamenRefrendo14" target="_blank">
+        Dictamen de certificación académica por refrendo Artículo 14
+    </a>
+    <span class="pendiente" title="Función en desarrollo">Dictamen de improcedencia (Próximamente)</span>
+    <span class="pendiente" title="Función en desarrollo">Dictamen de certificación académica no favorable (Próximamente)</span>
+    <span class="pendiente" title="Función en desarrollo">Dictamen de resultado no favorable para refrendo por Artículo 14 (Próximamente)</span>
+</div>
+
 @include('partials.footer')
 
 <script>
@@ -645,12 +658,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classL
 
 /* ---------- Menú desplegable de Dictámenes ---------- */
 const menuDictamen = document.getElementById('menuDictamenFlotante');
+const linkFavorablePrimera = document.getElementById('linkDictamenFavorablePrimera');
 const linkRefrendo14 = document.getElementById('linkDictamenRefrendo14');
 
 document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
     btn.addEventListener('click', e => {
         e.stopPropagation();
         const id = btn.dataset.id;
+        linkFavorablePrimera.href = `${URL_GUARDAR}/${id}/dictamen/favorable-primera`;
         linkRefrendo14.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14`;
 
         const rect = btn.getBoundingClientRect();
@@ -665,11 +680,4 @@ document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
         menuDictamen.style.top = `${top}px`;
     });
 });
-
-window.addEventListener('click', e => {
-    if (!e.target.closest('#menuDictamenFlotante')) {
-        menuDictamen.classList.remove('show');
-    }
-});
-window.addEventListener('scroll', () => menuDictamen.classList.remove('show'), true);
 </script>

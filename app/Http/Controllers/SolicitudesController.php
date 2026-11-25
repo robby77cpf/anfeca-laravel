@@ -181,7 +181,7 @@ class SolicitudesController extends Controller
         $archivoPlantilla = match ($tipo) {
             'refrendo-art14' => 'DICTAMEN_REFRENDO_ART14_PLANTILLA.docx',
             // Próximos dictámenes (solo descomenta cuando subas sus .docx):
-            // 'favorable-primera'       => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
+            'favorable-primera'       => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
             // 'improcedencia'           => 'DICTAMEN_IMPROCEDENCIA_PLANTILLA.docx',
             // 'no-favorable'            => 'DICTAMEN_NO_FAVORABLE_PLANTILLA.docx',
             // 'refrendo-art14-no-fav'   => 'DICTAMEN_REFRENDO_ART14_NO_FAV_PLANTILLA.docx',
@@ -212,6 +212,7 @@ class SolicitudesController extends Controller
         $template->setValue('mes', $fecha->translatedFormat('F'));
         $template->setValue('anio', $fecha->year);
         $template->setValue('coordinador_regional', 'Coordinación Regional de Certificación Académica');
+        $template->setValue('evaluacion', $s->soan_evaluacion ?? '0');
 
         $tempDir = storage_path('app/temp');
         if (!is_dir($tempDir)) {
