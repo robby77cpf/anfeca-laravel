@@ -182,8 +182,8 @@ class SolicitudesController extends Controller
             'favorable-primera' => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
             'refrendo-art14'    => 'DICTAMEN_REFRENDO_ART14_PLANTILLA.docx',
             'improcedencia'     => 'DICTAMEN_IMPROCEDENCIA_PLANTILLA.docx',
-            'no-favorable'      => 'DICTAMEN_NO_FAVORABLE_PLANTILLA.docx',
-            // 'refrendo-art14-no-fav' => 'DICTAMEN_REFRENDO_ART14_NO_FAV_PLANTILLA.docx',
+            // 'no-favorable'          => 'DICTAMEN_NO_FAVORABLE_PLANTILLA.docx',
+            'refrendo-art14-no-fav' => 'DICTAMEN_REFRENDO_ART14_NO_FAV_PLANTILLA.docx',
             default => null,
         };
 
