@@ -461,8 +461,10 @@
     <a href="#" id="linkDictamenRefrendo14" target="_blank">
         Dictamen de certificación académica por refrendo Artículo 14
     </a>
+    <a href="#" id="linkDictamenRefrendo14NoFav" target="_blank">
+        Dictamen de resultado no favorable para refrendo por Artículo 14
+    </a>
     <span class="pendiente" title="Función en desarrollo">Dictamen de certificación académica no favorable (Próximamente)</span>
-    <span class="pendiente" title="Función en desarrollo">Dictamen de resultado no favorable para refrendo por Artículo 14 (Próximamente)</span>
 </div>
 
 @include('partials.footer')
@@ -663,6 +665,7 @@ const menuDictamen = document.getElementById('menuDictamenFlotante');
 const linkImprocedencia = document.getElementById('linkDictamenImprocedencia');
 const linkFavorablePrimera = document.getElementById('linkDictamenFavorablePrimera');
 const linkRefrendo14 = document.getElementById('linkDictamenRefrendo14');
+const linkRefrendo14NoFav = document.getElementById('linkDictamenRefrendo14NoFav');
 
 document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -671,6 +674,7 @@ document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
         linkImprocedencia.href = `${URL_GUARDAR}/${id}/dictamen/improcedencia`;
         linkFavorablePrimera.href = `${URL_GUARDAR}/${id}/dictamen/favorable-primera`;
         linkRefrendo14.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14`;
+        linkRefrendo14NoFav.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14-no-fav`;
 
         const rect = btn.getBoundingClientRect();
         menuDictamen.classList.add('show');
