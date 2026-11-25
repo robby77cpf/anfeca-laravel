@@ -148,7 +148,7 @@ class SolicitudesController extends Controller
         ]);
     }
 
-    public function dictamen(int $solicitud)
+    public function dictamen(int $solicitud, string $tipo)
     {
         $this->autorizarZona($solicitud);
 
@@ -157,6 +157,7 @@ class SolicitudesController extends Controller
             ->leftJoin('institucion as i', 'i.inst_id_institucion', '=', 'p.pers_id_institucion')
             ->leftJoin('zona as z', 'z.zona_id_zona', '=', 'i.inst_id_zona')
             ->leftJoin('area_certificacion as a', 'a.area_id_area_certificacion', '=', 's.soan_id_area_certificacion')
+            ->leftJoin('articulo_certificacion as ar', 'ar.arce_id_articulo', '=', 's.soan_id_articulo')
             ->where('s.soan_id_solicitud_anfeca', $solicitud)
             ->select(
                 's.soan_id_solicitud_anfeca',
@@ -169,40 +170,56 @@ class SolicitudesController extends Controller
                 'p.pers_apellido_materno',
                 'a.area_descripcion',
                 'i.inst_descripcion',
-                'z.zona_siglas'
+                'z.zona_siglas',
+                'ar.*'
             )
             ->first();
 
         abort_unless($s, 404);
 
+        // Seleccionar plantilla según el tipo elegido en el menú
+        $archivoPlantilla = match ($tipo) {
+            'refrendo-art14' => 'DICTAMEN_REFRENDO_ART14_PLANTILLA.docx',
+            // Próximos dictámenes (solo descomenta cuando subas sus .docx):
+            // 'favorable-primera'       => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
+            // 'improcedencia'           => 'DICTAMEN_IMPROCEDENCIA_PLANTILLA.docx',
+            // 'no-favorable'            => 'DICTAMEN_NO_FAVORABLE_PLANTILLA.docx',
+            // 'refrendo-art14-no-fav'   => 'DICTAMEN_REFRENDO_ART14_NO_FAV_PLANTILLA.docx',
+            default => null,
+        };
+
+        abort_if($archivoPlantilla === null, 501, 'Este tipo de dictamen aún no está disponible.');
+
         $nombre = trim($s->pers_nombre . ' ' . $s->pers_apellido_paterno . ' ' . ($s->pers_apellido_materno ?? ''));
         $certificacion = $s->area_descripcion ?? $s->soan_nombre_certificacion ?? '—';
+
+        // Extraer numeral si existe una columna en articulo_certificacion (ajusta el nombre si tu columna se llama distinto, ej. $s->arce_numeral)
+        $numeral = $s->arce_numeral ?? $s->arce_fraccion ?? '—';
 
         Carbon::setLocale('es');
         $fecha = Carbon::now();
 
-        // 1. Cargar la plantilla Word y reemplazar marcadores
-        $template = new TemplateProcessor(storage_path('app/plantillas/DICTAMEN_CERTIF_ACADE_PLANTILLA.docx'));
+        $template = new TemplateProcessor(storage_path("app/plantillas/{$archivoPlantilla}"));
         $template->setValue('folio', $s->soan_folio ?: 'S/F');
         $template->setValue('nombre', $nombre);
         $template->setValue('institucion', $s->inst_descripcion ?? '—');
         $template->setValue('certificacion', $certificacion);
         $template->setValue('zona', $s->zona_siglas ?? '—');
         $template->setValue('resultado', $s->soan_aprobado ? 'APROBADA' : 'NO APROBADA');
-        $template->setValue('evaluacion', $s->soan_evaluacion ?? '0');
+        $template->setValue('numeral', $numeral);
+        $template->setValue('articulo', '14');
         $template->setValue('dia', $fecha->day);
         $template->setValue('mes', $fecha->translatedFormat('F'));
         $template->setValue('anio', $fecha->year);
         $template->setValue('coordinador_regional', 'Coordinación Regional de Certificación Académica');
 
-        // 2. Guardar Word temporal y convertir a PDF
         $tempDir = storage_path('app/temp');
         if (!is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
 
-        $docxPath = "{$tempDir}/dictamen_{$solicitud}.docx";
-        $pdfPath  = "{$tempDir}/dictamen_{$solicitud}.pdf";
+        $docxPath = "{$tempDir}/dictamen_{$tipo}_{$solicitud}.docx";
+        $pdfPath  = "{$tempDir}/dictamen_{$tipo}_{$solicitud}.pdf";
         $template->saveAs($docxPath);
 
         $comando = "HOME=" . escapeshellarg($tempDir)
