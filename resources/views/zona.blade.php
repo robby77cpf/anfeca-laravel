@@ -464,7 +464,7 @@
     <a href="#" id="linkDictamenRefrendo14NoFav" target="_blank">
         Dictamen de resultado no favorable para refrendo por Artículo 14
     </a>
-    <a href="#" id="linkDictameNoFavorable" target="_blank">
+    <a href="#" id="linkDictamenNoFavorable" target="_blank">
         Dictamen de certificación académica no favorable
     </a>
 </div>
@@ -482,10 +482,11 @@ function toggleMenu(id) {
     if (target) target.classList.toggle('show');
 }
 window.addEventListener('click', e => {
-    if (!e.target.closest('.dropdown-zona')) {
-        document.querySelectorAll('.menu-desplegable').forEach(m => m.classList.remove('show'));
+    if (!e.target.closest('#menuDictamenFlotante')) {
+        menuDictamen.classList.remove('show');
     }
 });
+window.addEventListener('scroll', () => menuDictamen.classList.remove('show'), true);
 
 /* ---------- Avisos ---------- */
 const toast = document.getElementById('toast');
