@@ -229,7 +229,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('acta') }}" class="btn-top">Reportes</a>
+           <a href="{{ route('reporte') }}" class="btn-top">Reportes</a>
 
             <a href="{{ route('revision.index') }}" class="btn-top">Documentos</a>
 
