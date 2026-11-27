@@ -199,17 +199,8 @@
 
             <a href="{{ route('revision.index') }}" class="btn-top">Documentos</a>
 
-            <div class="dropdown-zona" id="dropdownSolicitudes">
-                <button type="button" class="btn-top" onclick="toggleMenu('menuSolicitudes')">
-                    Solicitudes <span class="arrow">&#9660;</span>
-                </button>
-                <div class="menu-desplegable" id="menuSolicitudes">
-                    <a href="javascript:void(0)" onclick="seleccionarProceso('completo')">Solicitudes Completas</a>
-                    <a href="javascript:void(0)" onclick="seleccionarProceso('incompleto')">Solicitudes Incompletas</a>
-                </div>
-            </div>
 
-            <button type="button" class="btn-top">Acta</button>
+            <a href="{{ route('acta') }}" class="btn-top">Acta</a>
         </div>
 
         <div class="user-actions-right">
@@ -548,7 +539,7 @@ function aplicarFiltros() {
 
 document.getElementById('btnLimpiar').addEventListener('click', () => {
     buscar.value = '';
-    fProceso.value = 'completo';
+    fProceso.value = '';
     fZona.value = '';
     fTipo.value = '';
     aplicarFiltros();
