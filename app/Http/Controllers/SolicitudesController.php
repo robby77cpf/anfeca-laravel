@@ -179,22 +179,35 @@ class SolicitudesController extends Controller
 
         // Seleccionar plantilla según el tipo elegido en el menú
         $archivoPlantilla = match ($tipo) {
-            'favorable-primera' => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
-            'refrendo-art14'    => 'DICTAMEN_REFRENDO_ART14_PLANTILLA.docx',
-            'improcedencia'     => 'DICTAMEN_IMPROCEDENCIA_PLANTILLA.docx',
-            'no-favorable'          => 'DICTAMEN_DE_CERTIFICACION_NO_FAVORABLE_PLANTILLA.docx',
+            'favorable-primera'     => 'DICTAMEN_CERTIF_ACADE_PLANTILLA.docx',
+            'refrendo-art14'        => 'DICTAMEN_REFRENDO_ART14_PLANTILLA.docx',
+            'improcedencia'         => 'DICTAMEN_IMPROCEDENCIA_PLANTILLA.docx',
             'refrendo-art14-no-fav' => 'DICTAMEN_REFRENDO_ART14_NO_FAV_PLANTILLA.docx',
+            // 'no-favorable'       => 'DICTAMEN_NO_FAVORABLE_PLANTILLA.docx',
             default => null,
         };
 
         abort_if($archivoPlantilla === null, 501, 'Este tipo de dictamen aún no está disponible.');
 
+        // Obtener el nombre del administrador/coordinador que genera el dictamen
+        $usuarioId = $request->session()->get('usuario_id');
+        $admin = DB::table('usuario as u')
+            ->leftJoin('persona as p', 'p.pers_id_persona', '=', 'u.usua_id_persona')
+            ->where('u.usua_id_usuario', $usuarioId)
+            ->select('u.usua_nombre', 'p.pers_nombre', 'p.pers_apellido_paterno', 'p.pers_apellido_materno')
+            ->first();
+
+        $nombreAdmin = $admin && $admin->pers_nombre
+            ? trim($admin->pers_nombre . ' ' . $admin->pers_apellido_paterno . ' ' . ($admin->pers_apellido_materno ?? ''))
+            : ($admin->usua_nombre ?? $request->session()->get('usuario_nombre', 'Coordinación Regional de Certificación Académica'));
+
         $nombre = trim($s->pers_nombre . ' ' . $s->pers_apellido_paterno . ' ' . ($s->pers_apellido_materno ?? ''));
         $certificacion = $s->area_descripcion ?? $s->soan_nombre_certificacion ?? '—';
         $numeral = $s->arce_numeral ?? $s->arce_fraccion ?? '—';
 
+        // Fecha actual en tiempo real (hora de Ciudad de México)
         Carbon::setLocale('es');
-        $fecha = Carbon::now();
+        $fecha = Carbon::now('America/Mexico_City');
 
         $template = new TemplateProcessor(storage_path("app/plantillas/{$archivoPlantilla}"));
         $template->setValue('folio', $s->soan_folio ?: 'S/F');
@@ -209,9 +222,9 @@ class SolicitudesController extends Controller
         $template->setValue('dia', $fecha->day);
         $template->setValue('mes', $fecha->translatedFormat('F'));
         $template->setValue('anio', $fecha->year);
-        $template->setValue('coordinador_regional', 'Coordinación Regional de Certificación Académica');
+        $template->setValue('coordinador_regional', $nombreAdmin);
 
-        // Casillas de observaciones para Dictamen de improcedencia (ej. ?obs[]=1&obs[]=3)
+        // Casillas de observaciones para Dictamen de improcedencia
         $obsMarcadas = array_map('intval', (array) $request->query('obs', []));
         for ($n = 1; $n <= 7; $n++) {
             $template->setValue("obs_{$n}", in_array($n, $obsMarcadas, true) ? ' X ' : '   ');
@@ -243,8 +256,11 @@ class SolicitudesController extends Controller
         }
 
         return response()->file($pdfPath, [
-            'Content-Type' => 'application/pdf',
+            'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'inline; filename="Dictamen_' . ($s->soan_folio ?: $solicitud) . '.pdf"',
+            'Cache-Control'       => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
         ])->deleteFileAfterSend(true);
     }
 
