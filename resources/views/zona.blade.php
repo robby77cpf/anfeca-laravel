@@ -177,6 +177,40 @@
 
 .tabla-solicitudes tbody .icon-doc-pdf:hover,
 .tabla-solicitudes tbody .btn-action-icon:hover { position: relative; z-index: 0; }
+
+.menu-dictamen-flotante {
+    position: fixed;
+    display: none;
+    min-width: 310px;
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid var(--an-borde);
+    box-shadow: 0 12px 30px rgba(90, 20, 30, .22);
+    z-index: 10002;
+    overflow: hidden;
+    text-align: left;
+}
+.menu-dictamen-flotante.show { display: block; }
+.menu-dictamen-flotante a,
+.menu-dictamen-flotante span {
+    display: block;
+    padding: 10px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid #f4e9e7;
+    text-decoration: none;
+}
+.menu-dictamen-flotante a {
+    color: var(--an-vino);
+    font-weight: 600;
+    transition: background .15s;
+}
+.menu-dictamen-flotante a:hover { background: var(--an-rosa-claro); }
+.menu-dictamen-flotante span.pendiente {
+    color: #9e8c8a;
+    cursor: not-allowed;
+    background: #fafafa;
+}
+.menu-dictamen-flotante > *:last-child { border-bottom: 0; }
 </style>
 
 <div class="zona-container">
@@ -363,13 +397,16 @@
                                 </label>
                             </td>
                             <td>
-                                <a href="#" class="icon-doc-pdf" title="Ver Dictamen">
+                                <button type="button"
+                                        class="icon-doc-pdf btn-menu-dictamen"
+                                        data-id="{{ $s->soan_id_solicitud_anfeca }}"
+                                        title="Seleccionar Dictamen">
                                     <svg width="22" height="26" viewBox="0 0 24 28" fill="none">
                                         <path d="M4 0C2.34 0 1 1.34 1 3V25C1 26.66 2.34 28 4 28H20C21.66 28 23 26.66 23 25V8L15 0H4Z" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
                                         <path d="M15 0V8H23" stroke="#333333" stroke-width="1.5"/>
                                         <text x="4" y="20" font-size="7" font-weight="bold" fill="#333333">PDF</text>
                                     </svg>
-                                </a>
+                                </button>
                             </td>
                             <td>
                                 <button type="button" class="btn-action-icon btn-ver-datos" title="Ver datos del registro">
@@ -404,6 +441,25 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Menú desplegable flotante de Dictámenes -->
+<div class="menu-dictamen-flotante" id="menuDictamenFlotante">
+    <a href="#" id="linkDictamenImprocedencia" target="_blank">
+        Dictamen de improcedencia
+    </a>
+    <a href="#" id="linkDictamenFavorablePrimera" target="_blank">
+        Dictamen de certificación académica favorable (primera vez)
+    </a>
+    <a href="#" id="linkDictamenRefrendo14" target="_blank">
+        Dictamen de certificación académica por refrendo Artículo 14
+    </a>
+    <a href="#" id="linkDictamenRefrendo14NoFav" target="_blank">
+        Dictamen de resultado no favorable para refrendo por Artículo 14
+    </a>
+    <a href="#" id="linkDictamenNoFavorable" target="_blank">
+        Dictamen de certificación académica no favorable
+    </a>
+</div>
+
 @include('partials.footer')
 
 <script>
@@ -417,10 +473,11 @@ function toggleMenu(id) {
     if (target) target.classList.toggle('show');
 }
 window.addEventListener('click', e => {
-    if (!e.target.closest('.dropdown-zona')) {
-        document.querySelectorAll('.menu-desplegable').forEach(m => m.classList.remove('show'));
+    if (!e.target.closest('#menuDictamenFlotante')) {
+        menuDictamen.classList.remove('show');
     }
 });
+window.addEventListener('scroll', () => menuDictamen.classList.remove('show'), true);
 
 /* ---------- Avisos ---------- */
 const toast = document.getElementById('toast');
@@ -596,4 +653,34 @@ document.querySelectorAll('.btn-ver-datos').forEach(btn => {
 document.getElementById('modalCerrar').addEventListener('click', () => modal.classList.remove('abierto'));
 modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('abierto'); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('abierto'); });
+
+/* ---------- Menú desplegable de Dictámenes ---------- */
+const menuDictamen = document.getElementById('menuDictamenFlotante');
+const linkImprocedencia = document.getElementById('linkDictamenImprocedencia');
+const linkFavorablePrimera = document.getElementById('linkDictamenFavorablePrimera');
+const linkRefrendo14 = document.getElementById('linkDictamenRefrendo14');
+const linkRefrendo14NoFav = document.getElementById('linkDictamenRefrendo14NoFav');
+const linkNoFavorable = document.getElementById('linkDictamenNoFavorable');
+
+document.querySelectorAll('.btn-menu-dictamen').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        linkImprocedencia.href = `${URL_GUARDAR}/${id}/dictamen/improcedencia`;
+        linkFavorablePrimera.href = `${URL_GUARDAR}/${id}/dictamen/favorable-primera`;
+        linkRefrendo14.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14`;
+        linkRefrendo14NoFav.href = `${URL_GUARDAR}/${id}/dictamen/refrendo-art14-no-fav`;
+        linkNoFavorable.href = `${URL_GUARDAR}/${id}/dictamen/no-favorable`;
+
+        const rect = btn.getBoundingClientRect();
+        menuDictamen.classList.add('show');
+
+        const anchoMenu = menuDictamen.offsetWidth;
+        const left = Math.max(12, rect.right - anchoMenu);
+        const top = Math.min(window.innerHeight - menuDictamen.offsetHeight - 12, rect.bottom + 6);
+
+        menuDictamen.style.left = `${left}px`;
+        menuDictamen.style.top = `${top}px`;
+    });
+});
 </script>

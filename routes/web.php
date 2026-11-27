@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ActaController;
 
 Route::view('/', 'login')->name('home');
 Route::view('/index', 'login')->name('index');
@@ -247,7 +246,10 @@ Route::middleware('rol:coordinador,superadministrador')->group(function () {
         ->whereNumber('solicitud')->name('zona.guardar');
     Route::get('/zona/{solicitud}/persona', [SolicitudesController::class, 'persona'])
         ->whereNumber('solicitud')->name('zona.persona');
-    Route::get('/acta', [ActaController::class, 'index'])->name('acta');
+    Route::get('/zona/{solicitud}/dictamen/{tipo}', [SolicitudesController::class, 'dictamen'])
+        ->whereNumber('solicitud')->name('solicitudes.dictamen');
+    Route::get('/acta', [\App\Http\Controllers\ActaController::class, 'descargar'])->name('acta');
+
     // Revisión de documentos
     Route::get('/revision', [DocumentosController::class, 'revisionLista'])->name('revision.index');
     Route::get('/revision/{solicitud}', [DocumentosController::class, 'revisionDetalle'])
@@ -259,3 +261,5 @@ Route::middleware('rol:coordinador,superadministrador')->group(function () {
 Route::match(['get', 'post'], '/recuperar', fn () => view('recuperar'))->name('recuperar');
 Route::redirect('/editarDatos', '/index')->name('editarDatos');
 Route::redirect('/recContraseña', '/recuperar');
+Route::get('/zona/{solicitud}/dictamen/{tipo}', [SolicitudesController::class, 'dictamen'])
+    ->name('solicitudes.dictamen');
